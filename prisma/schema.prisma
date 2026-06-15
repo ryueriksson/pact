@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  SIGNED
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum SectionType {
+  TEXT
+  PRICING
+  IMAGE
+  DIVIDER
+  HEADING
+}
+
+enum Plan {
+  FREE
+  PRO
+  AGENCY
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  name            String?
+  passwordHash    String?
+  image           String?
+  emailVerified   DateTime?
+  plan            Plan       @default(FREE)
+  stripeCustomerId String?   @unique
+
+  // Stripe Connect — freelancer's payout account
+  stripeConnectId        String?  @unique  // acct_xxx
+  stripeConnectOnboarded Boolean  @default(false)
+
+  proposals       Proposal[]
+  accounts        Account[]
+  sessions        Session[]
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([email])
+}
+
+model Proposal {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title           String
+  clientName      String
+  clientEmail     String
+  status          ProposalStatus  @default(DRAFT)
+
+  // Shareable token — generated on publish
+  token           String?         @unique
+  expiresAt       DateTime?
+
+  // Payment config
+  depositAmount   Int?            // in cents
+  currency        String          @default("usd")
+
+  // Contract body (HTML/markdown)
+  contractBody    String?
+
+  sections        ProposalSection[]
+  contract        Contract?
+  payment         Payment?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@index([status])
+}
+
+model ProposalSection {
+  id          String      @id @default(cuid())
+  proposalId  String
+  proposal    Proposal    @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  type        SectionType
+  order       Int
+  content     Json        // flexible per type
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([proposalId, order])
+}
+
+model Contract {
+  id              String    @id @default(cuid())
+  proposalId      String    @unique
+  proposal        Proposal  @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  // Signer info (filled by client)
+  signerName      String?
+  signerEmail     String?
+  signatureData   String?   // base64 PNG of drawn signature
+  signedAt        DateTime?
+  ipAddress       String?
+  userAgent       String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  proposalId            String        @unique
+  proposal              Proposal      @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  stripeSessionId       String?       @unique
+  stripePaymentIntentId String?       @unique
+  amount                Int           // in cents
+  currency              String        @default("usd")
+  status                PaymentStatus @default(PENDING)
+  paidAt                DateTime?
+
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+}
+
+// ─── NextAuth ─────────────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
