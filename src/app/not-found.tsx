@@ -5,25 +5,34 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#F6F5F8] flex items-center justify-center px-6">
       <div className="text-center max-w-md">
-        <div className="flex justify-center mb-6">
-          <LogoMark size={48} />
+        <div className="flex justify-center mb-8">
+          <div className="relative">
+            <LogoMark size={56} />
+            <span className="absolute -top-1 -right-2 text-2xl">🔍</span>
+          </div>
         </div>
-        <h1 className="text-6xl font-black text-gray-900 mb-3">404</h1>
-        <p className="text-gray-500 text-lg mb-8">
-          This page doesn&apos;t exist or you don&apos;t have access to it.
+
+        <p className="text-xs font-bold text-sky-600 uppercase tracking-widest mb-3">Error 404</p>
+        <h1 className="text-4xl font-black text-gray-900 mb-3">Page not found</h1>
+        <p className="text-gray-500 mb-2">
+          This page doesn&apos;t exist, the link has expired, or you don&apos;t have access.
         </p>
-        <div className="flex items-center justify-center gap-3">
+        <p className="text-gray-400 text-sm mb-10">
+          If you&apos;re looking for a proposal or lease link, ask the sender to share it again.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/dashboard"
-            className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-violet-100"
+            className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md shadow-sky-100"
           >
             Go to Dashboard
           </Link>
           <Link
             href="/"
-            className="border-2 border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 px-6 py-3 rounded-xl font-bold text-sm transition-colors"
+            className="w-full sm:w-auto border-2 border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 px-6 py-3 rounded-xl font-bold text-sm transition-colors text-center"
           >
-            Home
+            Back to home
           </Link>
         </div>
       </div>

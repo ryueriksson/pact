@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireProposalAccess } from "@/lib/auth";
 import { generateToken, defaultExpiry } from "@/lib/tokens";
 import { sendProposalLink } from "@/lib/email";
 import { apiError, apiOk } from "@/lib/utils";
@@ -9,7 +9,7 @@ import { apiError, apiOk } from "@/lib/utils";
 // Generates a unique share token and emails the client
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const user = await requireAuth();
+    const user = await requireProposalAccess();
 
     const proposal = await prisma.proposal.findFirst({
       where: { id: params.id, userId: user.id },
@@ -32,21 +32,28 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       },
     });
 
-    // Send email to client
-    await sendProposalLink({
-      to: proposal.clientEmail,
-      clientName: proposal.clientName,
-      senderName: user.name ?? user.email,
-      proposalTitle: proposal.title,
-      token,
-    });
+    let emailSent = true;
+    try {
+      await sendProposalLink({
+        to: proposal.clientEmail,
+        clientName: proposal.clientName,
+        senderName: user.name ?? user.email,
+        proposalTitle: proposal.title,
+        token,
+      });
+    } catch (e) {
+      console.error("[publish] email failed:", e);
+      emailSent = false;
+    }
 
     return apiOk({
       token: updated.token,
       url: `${process.env.NEXT_PUBLIC_APP_URL}/p/${token}`,
+      emailSent,
     });
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);
     console.error("[publish]", err);
     return apiError("Failed to publish proposal", 500);
   }

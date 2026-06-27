@@ -41,6 +41,26 @@ enum Plan {
   AGENCY
 }
 
+enum BusinessCategory {
+  FREELANCER
+  LANDLORD
+  AGENCY
+}
+
+enum LeaseStatus {
+  DRAFT
+  SENT
+  SIGNED
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum LeasePaymentType {
+  DEPOSIT
+  RENT
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -51,6 +71,7 @@ model User {
   image           String?
   emailVerified   DateTime?
   plan            Plan       @default(FREE)
+  businessCategory BusinessCategory?
   stripeCustomerId String?   @unique
 
   // Stripe Connect — freelancer's payout account
@@ -58,6 +79,7 @@ model User {
   stripeConnectOnboarded Boolean  @default(false)
 
   proposals       Proposal[]
+  leases          Lease[]
   accounts        Account[]
   sessions        Session[]
 
@@ -146,6 +168,90 @@ model Payment {
 
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
+}
+
+// ─── Lease ────────────────────────────────────────────────────────────────────
+
+model Lease {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Property
+  propertyAddress String
+  unitNumber      String?
+
+  // Tenant
+  tenantName      String
+  tenantEmail     String
+
+  // Financial
+  monthlyRent     Int           // cents
+  depositAmount   Int?          // cents (null = no deposit)
+  currency        String        @default("usd")
+
+  // Dates
+  leaseStart      DateTime
+  leaseEnd        DateTime
+
+  // Document — PDF upload (Vercel Blob) or text
+  leaseDocUrl     String?
+  contractBody    String?
+
+  // Existing tenants: skip the e-sign step, go straight to payments
+  skipSigning     Boolean       @default(false)
+
+  // Status + shareable token (set at creation)
+  status          LeaseStatus   @default(DRAFT)
+  token           String        @unique @default(cuid())
+
+  // Stripe subscription ID (set after tenant subscribes)
+  stripeSubId     String?       @unique
+
+  leaseContract   LeaseContract?
+  leasePayments   LeasePayment[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@index([status])
+}
+
+model LeaseContract {
+  id            String   @id @default(cuid())
+  leaseId       String   @unique
+  lease         Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  signerName    String
+  signerEmail   String
+  signatureData String   // base64 PNG
+  signedAt      DateTime @default(now())
+  ipAddress     String?
+
+  createdAt     DateTime @default(now())
+}
+
+model LeasePayment {
+  id              String           @id @default(cuid())
+  leaseId         String
+  lease           Lease            @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  type            LeasePaymentType
+  amount          Int              // cents
+  currency        String           @default("usd")
+
+  stripeSessionId String?          @unique
+  stripeInvoiceId String?          @unique
+
+  status          PaymentStatus    @default(PENDING)
+  dueDate         DateTime?
+  paidAt          DateTime?
+
+  createdAt       DateTime         @default(now())
+
+  @@index([leaseId])
 }
 
 // ─── NextAuth ─────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type SectionType = "TEXT" | "PRICING" | "HEADING" | "DIVIDER";
 
@@ -180,28 +181,40 @@ export function ProposalEditor({ proposalId, initial }: Props) {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* Back link in edit mode */}
+      {isEdit && (
+        <div className="mb-4">
+          <Link
+            href={`/proposals/${proposalId}`}
+            className="text-sm text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            ← Back to proposal
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-black text-gray-900">
             {isEdit ? "Edit Proposal" : "New Proposal"}
           </h1>
           <p className="text-gray-400 text-sm mt-0.5">
-            {isEdit ? "Changes are saved immediately." : "Fill in the details, then send to your client."}
+            {isEdit ? "Changes are saved to your draft." : "Fill in the details, then send to your client."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <button
             onClick={() => handleSave(false)}
             disabled={loading}
             className="border-2 border-gray-200 hover:border-gray-300 px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-gray-900 transition-all disabled:opacity-50"
           >
-            {saved ? "✓ Saved" : loading && !false ? "Saving..." : "Save draft"}
+            {saved ? "✓ Saved" : loading ? "Saving..." : "Save draft"}
           </button>
           <button
             onClick={() => handleSave(true)}
             disabled={loading || !title || !clientEmail}
-            className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-40 shadow-md shadow-violet-100 flex items-center gap-2"
+            className="bg-sky-600 hover:bg-sky-700 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-40 shadow-md shadow-sky-100 flex items-center gap-2"
           >
             {loading ? "Sending..." : "Send to client →"}
           </button>
@@ -217,7 +230,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
       {/* Client details */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 mb-5">
         <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-6 h-6 bg-violet-100 text-violet-700 rounded-lg flex items-center justify-center text-xs font-black">1</span>
+          <span className="w-6 h-6 bg-sky-100 text-sky-700 rounded-lg flex items-center justify-center text-xs font-black">1</span>
           Client details
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -234,7 +247,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
                 value={f.value}
                 onChange={(e) => f.set(e.target.value)}
                 placeholder={f.placeholder}
-                className="w-full border-2 border-gray-100 focus:border-violet-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors bg-gray-50 focus:bg-white"
+                className="w-full border-2 border-gray-100 focus:border-sky-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors bg-gray-50 focus:bg-white"
               />
             </div>
           ))}
@@ -244,7 +257,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
       {/* Proposal sections */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 mb-5">
         <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-6 h-6 bg-violet-100 text-violet-700 rounded-lg flex items-center justify-center text-xs font-black">2</span>
+          <span className="w-6 h-6 bg-sky-100 text-sky-700 rounded-lg flex items-center justify-center text-xs font-black">2</span>
           Proposal content
           <span className="text-xs text-gray-400 font-normal ml-1">Drag to reorder</span>
         </h2>
@@ -258,7 +271,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
               onDragEnter={() => onDragEnter(section.id)}
               onDragEnd={onDragEnd}
               onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-gray-100 hover:border-violet-200 rounded-xl p-4 relative group cursor-grab active:cursor-grabbing transition-colors bg-white"
+              className="border-2 border-gray-100 hover:border-sky-200 rounded-xl p-4 relative group cursor-grab active:cursor-grabbing transition-colors bg-white"
             >
               {/* Drag handle */}
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 group-hover:text-gray-400 transition-colors select-none">
@@ -295,13 +308,13 @@ export function ProposalEditor({ proposalId, initial }: Props) {
                   <div className="flex gap-3 items-center">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wide w-14 flex-shrink-0">Price</span>
                     <input
-                      className="flex-1 border-2 border-gray-100 focus:border-violet-300 rounded-lg px-3 py-1.5 text-sm outline-none bg-gray-50 focus:bg-white"
+                      className="flex-1 border-2 border-gray-100 focus:border-sky-300 rounded-lg px-3 py-1.5 text-sm outline-none bg-gray-50 focus:bg-white"
                       placeholder="Service or item description"
                       value={(section.content.label as string) ?? ""}
                       onChange={(e) => updateSection(section.id, { ...section.content, label: e.target.value })}
                     />
                     <input
-                      className="w-28 border-2 border-gray-100 focus:border-violet-300 rounded-lg px-3 py-1.5 text-sm outline-none bg-gray-50 focus:bg-white"
+                      className="w-28 border-2 border-gray-100 focus:border-sky-300 rounded-lg px-3 py-1.5 text-sm outline-none bg-gray-50 focus:bg-white"
                       placeholder="$0"
                       value={(section.content.price as string) ?? ""}
                       onChange={(e) => updateSection(section.id, { ...section.content, price: e.target.value })}
@@ -326,7 +339,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
             <button
               key={type}
               onClick={() => addSection(type)}
-              className="flex items-center gap-1.5 text-xs border-2 border-dashed border-gray-200 hover:border-violet-300 hover:text-violet-600 px-3 py-2 rounded-lg text-gray-500 transition-all font-medium"
+              className="flex items-center gap-1.5 text-xs border-2 border-dashed border-gray-200 hover:border-sky-300 hover:text-sky-600 px-3 py-2 rounded-lg text-gray-500 transition-all font-medium"
             >
               <span>+</span>
               {type === "HEADING" ? "Heading" : type === "TEXT" ? "Text" : type === "PRICING" ? "Pricing row" : "Divider"}
@@ -338,7 +351,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
       {/* Contract */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
         <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
-          <span className="w-6 h-6 bg-violet-100 text-violet-700 rounded-lg flex items-center justify-center text-xs font-black">3</span>
+          <span className="w-6 h-6 bg-sky-100 text-sky-700 rounded-lg flex items-center justify-center text-xs font-black">3</span>
           Contract / Terms
         </h2>
         <p className="text-xs text-gray-400 mb-4 ml-8">
@@ -348,7 +361,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
           value={contractBody}
           onChange={(e) => setContract(e.target.value)}
           rows={14}
-          className="w-full border-2 border-gray-100 focus:border-violet-300 rounded-xl px-4 py-3 text-sm font-mono text-gray-600 outline-none resize-none transition-colors bg-gray-50 focus:bg-white leading-relaxed"
+          className="w-full border-2 border-gray-100 focus:border-sky-300 rounded-xl px-4 py-3 text-sm font-mono text-gray-600 outline-none resize-none transition-colors bg-gray-50 focus:bg-white leading-relaxed"
         />
       </div>
     </div>

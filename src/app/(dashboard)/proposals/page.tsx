@@ -8,7 +8,7 @@ const STATUS: Record<string, { label: string; color: string }> = {
   DRAFT:     { label: "Draft",    color: "bg-gray-100 text-gray-600" },
   SENT:      { label: "Sent",     color: "bg-blue-100 text-blue-700" },
   VIEWED:    { label: "Viewed",   color: "bg-yellow-100 text-yellow-700" },
-  SIGNED:    { label: "Signed",   color: "bg-purple-100 text-purple-700" },
+  SIGNED:    { label: "Signed",   color: "bg-sky-100 text-sky-700" },
   PAID:      { label: "Paid",     color: "bg-green-100 text-green-700" },
   EXPIRED:   { label: "Expired",  color: "bg-red-100 text-red-600" },
   CANCELLED: { label: "Cancelled",color: "bg-gray-100 text-gray-400" },
@@ -58,7 +58,7 @@ export default async function ProposalsPage({
         <h1 className="text-2xl font-black text-gray-900">Proposals</h1>
         <Link
           href="/proposals/new"
-          className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-md shadow-violet-100"
+          className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-md shadow-sky-100"
         >
           + New Proposal
         </Link>
@@ -74,7 +74,7 @@ export default async function ProposalsPage({
             {q || statusFilter !== "all" ? (
               <>
                 <p className="mb-2 font-medium text-gray-600">No proposals match your filters</p>
-                <Link href="/proposals" className="text-sm text-violet-600 hover:underline">
+                <Link href="/proposals" className="text-sm text-sky-600 hover:underline">
                   Clear filters
                 </Link>
               </>
@@ -83,7 +83,7 @@ export default async function ProposalsPage({
                 <p className="mb-4 font-medium text-gray-600">No proposals yet</p>
                 <Link
                   href="/proposals/new"
-                  className="text-sm bg-violet-600 text-white px-5 py-2.5 rounded-xl hover:bg-violet-700 transition-colors"
+                  className="text-sm bg-sky-600 text-white px-5 py-2.5 rounded-xl hover:bg-sky-700 transition-colors"
                 >
                   Create your first proposal
                 </Link>
@@ -104,32 +104,41 @@ export default async function ProposalsPage({
             <tbody className="divide-y divide-gray-50">
               {proposals.map((p) => {
                 const badge = STATUS[p.status] ?? STATUS.DRAFT;
+                const href = `/proposals/${p.id}`;
                 return (
-                  <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
+                  <tr key={p.id} className="hover:bg-sky-50/40 transition-colors group">
                     <td className="px-6 py-4">
-                      <Link
-                        href={`/proposals/${p.id}`}
-                        className="font-semibold text-gray-900 hover:text-violet-700 transition-colors"
-                      >
-                        {p.title}
+                      <Link href={href} className="block">
+                        <span className="font-semibold text-gray-900 group-hover:text-sky-700 transition-colors">
+                          {p.title}
+                        </span>
+                        <span className="block text-xs text-gray-400 mt-0.5 sm:hidden">{p.clientName}</span>
                       </Link>
                     </td>
-                    <td className="px-4 py-4 text-gray-500 hidden sm:table-cell">
-                      <div>{p.clientName}</div>
-                      <div className="text-xs text-gray-400">{p.clientEmail}</div>
+                    <td className="px-4 py-4 hidden sm:table-cell">
+                      <Link href={href} className="block text-gray-600">
+                        <div>{p.clientName}</div>
+                        <div className="text-xs text-gray-400">{p.clientEmail}</div>
+                      </Link>
                     </td>
-                    <td className="px-4 py-4 text-gray-700 font-medium hidden md:table-cell">
-                      {p.depositAmount
-                        ? `$${(p.depositAmount / 100).toLocaleString()}`
-                        : <span className="text-gray-300">—</span>}
+                    <td className="px-4 py-4 hidden md:table-cell">
+                      <Link href={href} className="block font-semibold text-gray-800">
+                        {p.depositAmount
+                          ? `$${(p.depositAmount / 100).toLocaleString()}`
+                          : <span className="text-gray-300 font-normal">—</span>}
+                      </Link>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${badge.color}`}>
-                        {badge.label}
-                      </span>
+                      <Link href={href} className="block">
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${badge.color}`}>
+                          {badge.label}
+                        </span>
+                      </Link>
                     </td>
-                    <td className="px-4 py-4 text-gray-400 text-xs hidden lg:table-cell">
-                      {new Date(p.createdAt).toLocaleDateString()}
+                    <td className="px-4 py-4 hidden lg:table-cell">
+                      <Link href={href} className="block text-xs text-gray-400">
+                        {new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </Link>
                     </td>
                   </tr>
                 );

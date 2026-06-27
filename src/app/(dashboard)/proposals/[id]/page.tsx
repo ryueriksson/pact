@@ -8,7 +8,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   DRAFT:     { label: "Draft",    color: "bg-gray-100 text-gray-600" },
   SENT:      { label: "Sent",     color: "bg-blue-100 text-blue-700" },
   VIEWED:    { label: "Viewed",   color: "bg-yellow-100 text-yellow-700" },
-  SIGNED:    { label: "Signed",   color: "bg-purple-100 text-purple-700" },
+  SIGNED:    { label: "Signed",   color: "bg-sky-100 text-sky-700" },
   PAID:      { label: "Paid",     color: "bg-green-100 text-green-700" },
   EXPIRED:   { label: "Expired",  color: "bg-red-100 text-red-600" },
   CANCELLED: { label: "Cancelled",color: "bg-gray-100 text-gray-400" },
@@ -46,15 +46,15 @@ export default async function ProposalDetailPage({
         </Link>
       </div>
 
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">{proposal.title}</h1>
-            <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${badge.color}`}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl font-bold text-gray-900 truncate">{proposal.title}</h1>
+            <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium flex-shrink-0 ${badge.color}`}>
               {badge.label}
             </span>
           </div>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1 truncate">
             {proposal.clientName} · {proposal.clientEmail}
           </p>
         </div>
@@ -76,16 +76,16 @@ export default async function ProposalDetailPage({
 
       {/* Share link */}
       {shareUrl && (
-        <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 mb-6 flex items-center justify-between">
-          <div>
+        <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <div className="text-sm font-medium text-blue-900">Shareable link</div>
-            <div className="text-xs text-blue-600 mt-0.5 font-mono">{shareUrl}</div>
+            <div className="text-xs text-blue-600 mt-0.5 font-mono truncate">{shareUrl}</div>
           </div>
           <a
             href={shareUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-xs border border-blue-200 bg-white text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+            className="text-xs border border-blue-200 bg-white text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors self-start sm:self-auto flex-shrink-0"
           >
             Preview →
           </a>
@@ -93,9 +93,9 @@ export default async function ProposalDetailPage({
       )}
 
       {/* Progress timeline */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-4">Status</h2>
-        <div className="flex items-center gap-0">
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6 overflow-x-auto">
+        <h2 className="font-semibold text-gray-900 mb-5">Status</h2>
+        <div className="flex items-center min-w-[260px]">
           {[
             { label: "Sent",   done: ["SENT","VIEWED","SIGNED","PAID"].includes(proposal.status) },
             { label: "Viewed", done: ["VIEWED","SIGNED","PAID"].includes(proposal.status) },
@@ -111,11 +111,11 @@ export default async function ProposalDetailPage({
                 >
                   {step.done ? "✓" : i + 1}
                 </div>
-                <span className="text-xs text-gray-500 mt-1">{step.label}</span>
+                <span className="text-xs text-gray-500 mt-1 whitespace-nowrap">{step.label}</span>
               </div>
               {i < arr.length - 1 && (
                 <div
-                  className={`flex-1 h-0.5 mb-4 ${
+                  className={`flex-1 h-0.5 mb-4 mx-1 ${
                     arr[i + 1].done ? "bg-gray-900" : "bg-gray-200"
                   }`}
                 />

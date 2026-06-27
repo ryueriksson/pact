@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireProposalAccess } from "@/lib/auth";
 import { updateProposalSchema } from "@/lib/validators";
 import { apiError, apiOk } from "@/lib/utils";
 
@@ -10,7 +10,7 @@ type Params = { params: { id: string } };
 // GET /api/proposals/[id]
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
-    const user = await requireAuth();
+    const user = await requireProposalAccess();
 
     const proposal = await prisma.proposal.findFirst({
       where: { id: params.id, userId: user.id },
@@ -26,6 +26,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     return apiOk({ proposal });
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);
     return apiError("Server error", 500);
   }
 }
@@ -33,7 +34,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 // PATCH /api/proposals/[id]
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
-    const user = await requireAuth();
+    const user = await requireProposalAccess();
     const body = await req.json();
     const parsed = updateProposalSchema.safeParse(body);
 
@@ -78,6 +79,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return apiOk({ proposal });
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);
     return apiError("Server error", 500);
   }
 }
@@ -85,7 +87,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 // DELETE /api/proposals/[id]
 export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
-    const user = await requireAuth();
+    const user = await requireProposalAccess();
 
     const existing = await prisma.proposal.findFirst({
       where: { id: params.id, userId: user.id },
@@ -97,6 +99,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     return apiOk({ success: true });
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);
     return apiError("Server error", 500);
   }
 }

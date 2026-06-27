@@ -215,9 +215,9 @@ export function ClientProposalView({ token, proposal }: Props) {
             </div>
 
             {proposal.depositAmount && (
-              <div className="bg-violet-50 border border-violet-100 rounded-xl px-6 py-4 mb-6 flex items-center justify-between">
+              <div className="bg-sky-50 border border-sky-100 rounded-xl px-6 py-4 mb-6 flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-violet-600 font-medium">Deposit due on signing</div>
+                  <div className="text-sm text-sky-600 font-medium">Deposit due on signing</div>
                   <div className="text-2xl font-bold text-gray-900 mt-0.5">
                     ${(proposal.depositAmount / 100).toLocaleString()}{" "}
                     <span className="text-sm font-normal text-gray-400 uppercase">
@@ -230,7 +230,7 @@ export function ClientProposalView({ token, proposal }: Props) {
 
             <button
               onClick={() => setStep("sign")}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-4 rounded-xl font-semibold text-base md:text-lg transition-colors shadow-md shadow-violet-100"
+              className="w-full bg-sky-600 hover:bg-sky-700 text-white py-4 rounded-xl font-semibold text-base md:text-lg transition-colors shadow-md shadow-sky-100"
             >
               Review & sign contract →
             </button>
@@ -256,7 +256,7 @@ export function ClientProposalView({ token, proposal }: Props) {
                   <input
                     value={signerName}
                     onChange={(e) => setSignerName(e.target.value)}
-                    className="w-full border-2 border-gray-100 focus:border-violet-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                    className="w-full border-2 border-gray-100 focus:border-sky-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
                     placeholder="Jane Smith"
                   />
                 </div>
@@ -266,7 +266,7 @@ export function ClientProposalView({ token, proposal }: Props) {
                     type="email"
                     value={signerEmail}
                     onChange={(e) => setSignerEmail(e.target.value)}
-                    className="w-full border-2 border-gray-100 focus:border-violet-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                    className="w-full border-2 border-gray-100 focus:border-sky-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
                     placeholder="jane@company.com"
                   />
                 </div>
@@ -313,7 +313,7 @@ export function ClientProposalView({ token, proposal }: Props) {
               <button
                 onClick={handleSign}
                 disabled={signLoading}
-                className="flex-1 bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 shadow-md shadow-violet-100"
+                className="flex-1 bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 shadow-md shadow-sky-100"
               >
                 {signLoading
                   ? "Submitting..."
@@ -366,7 +366,7 @@ export function ClientProposalView({ token, proposal }: Props) {
                 <button
                   onClick={handlePay}
                   disabled={payLoading}
-                  className="w-full bg-violet-600 hover:bg-violet-700 text-white py-4 rounded-xl font-semibold text-lg transition-colors disabled:opacity-50 shadow-md shadow-violet-100"
+                  className="w-full bg-sky-600 hover:bg-sky-700 text-white py-4 rounded-xl font-semibold text-lg transition-colors disabled:opacity-50 shadow-md shadow-sky-100"
                 >
                   {payLoading ? "Redirecting to payment..." : "Pay deposit →"}
                 </button>
@@ -400,7 +400,7 @@ export function ClientProposalView({ token, proposal }: Props) {
                 </>
               ) : (
                 <>
-                  <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-5">
                     <span className="text-3xl">✍️</span>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Signed!</h2>

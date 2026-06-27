@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireProposalAccess } from "@/lib/auth";
 import { createProposalSchema } from "@/lib/validators";
 import { apiError, apiOk } from "@/lib/utils";
 
 // GET /api/proposals — list all proposals for current user
 export async function GET() {
   try {
-    const user = await requireAuth();
+    const user = await requireProposalAccess();
 
     const proposals = await prisma.proposal.findMany({
       where: { userId: user.id },
@@ -32,6 +32,7 @@ export async function GET() {
     return apiOk({ proposals });
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);
     console.error("[proposals/GET]", err);
     return apiError("Failed to fetch proposals", 500);
   }
@@ -40,7 +41,7 @@ export async function GET() {
 // POST /api/proposals — create a new proposal
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuth();
+    const user = await requireProposalAccess();
     const body = await req.json();
     const parsed = createProposalSchema.safeParse(body);
 
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
     return apiOk({ proposal }, 201);
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);
     console.error("[proposals/POST]", err);
     return apiError("Failed to create proposal", 500);
   }

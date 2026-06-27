@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const businessCategorySchema = z.enum(["FREELANCER", "LANDLORD", "AGENCY"]);
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export const loginSchema = z.object({
@@ -10,6 +12,21 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  businessCategory: businessCategorySchema,
+});
+
+export const changePasswordSchema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset link is invalid"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 

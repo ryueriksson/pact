@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { sendPaymentConfirmation } from "@/lib/email";
+import { sendPaymentConfirmation, sendRentPaidReceipt } from "@/lib/email";
 import { formatCurrency } from "@/lib/tokens";
 
 export async function POST(req: NextRequest) {
@@ -28,8 +28,50 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        const proposalId = session.metadata?.proposalId;
+        const eventType = session.metadata?.type;
 
+        // ── Pro subscription — flip user plan ──────────────────
+        if (eventType === "pro_subscription") {
+          const userId = session.metadata?.userId;
+          if (!userId) break;
+
+          await prisma.user.update({
+            where: { id: userId },
+            data: {
+              plan: "PRO",
+              stripeCustomerId: session.customer as string,
+            },
+          });
+          break;
+        }
+
+        // ── Lease deposit (one-time) ───────────────────────────
+        if (eventType === "lease_deposit") {
+          const leaseId = session.metadata?.leaseId;
+          if (!leaseId) break;
+
+          await prisma.leasePayment.updateMany({
+            where: { leaseId, type: "DEPOSIT", status: "PENDING" },
+            data: { status: "PAID", paidAt: new Date() },
+          });
+          break;
+        }
+
+        // ── Lease rent subscription set up ─────────────────────
+        if (eventType === "lease_rent") {
+          const leaseId = session.metadata?.leaseId;
+          const subId = session.subscription as string | null;
+          if (!leaseId || !subId) break;
+
+          await prisma.lease.update({
+            where: { id: leaseId },
+            data: { status: "ACTIVE", stripeSubId: subId },
+          });
+          break;
+        }
+
+        // ── Proposal deposit ───────────────────────────────────
+        const proposalId = session.metadata?.proposalId;
         if (!proposalId) break;
 
         const proposal = await prisma.proposal.findUnique({
@@ -37,7 +79,6 @@ export async function POST(req: NextRequest) {
         });
         if (!proposal) break;
 
-        // Mark payment as paid
         await prisma.payment.update({
           where: { proposalId },
           data: {
@@ -47,13 +88,11 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Update proposal status
         await prisma.proposal.update({
           where: { id: proposalId },
           data: { status: "PAID" },
         });
 
-        // Confirm to client
         if (proposal.depositAmount) {
           await sendPaymentConfirmation({
             to: proposal.clientEmail,
@@ -62,6 +101,18 @@ export async function POST(req: NextRequest) {
             amountFormatted: formatCurrency(proposal.depositAmount, proposal.currency),
           });
         }
+        break;
+      }
+
+      // ── Pro subscription cancelled/deleted ─────────────────
+      case "customer.subscription.deleted": {
+        const sub = event.data.object;
+        const customerId = sub.customer as string;
+
+        await prisma.user.updateMany({
+          where: { stripeCustomerId: customerId },
+          data: { plan: "FREE" },
+        });
         break;
       }
 
@@ -77,8 +128,67 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      // ── Lease: monthly rent invoice paid ───────────────────
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object;
+        const subId = invoice.subscription as string | null;
+        if (!subId) break;
+
+        const lease = await prisma.lease.findFirst({
+          where: { stripeSubId: subId },
+        });
+        if (!lease) break;
+
+        await prisma.leasePayment.create({
+          data: {
+            leaseId: lease.id,
+            type: "RENT",
+            amount: invoice.amount_paid,
+            currency: invoice.currency,
+            stripeInvoiceId: invoice.id,
+            status: "PAID",
+            paidAt: new Date(),
+          },
+        });
+
+        const month = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+        try {
+          await sendRentPaidReceipt({
+            to: lease.tenantEmail,
+            tenantName: lease.tenantName,
+            propertyAddress: lease.propertyAddress,
+            amountFormatted: formatCurrency(invoice.amount_paid, invoice.currency),
+            month,
+          });
+        } catch (e) {
+          console.error("[webhook] rent receipt email failed:", e);
+        }
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object;
+        const subId = invoice.subscription as string | null;
+        if (!subId) break;
+
+        const lease = await prisma.lease.findFirst({ where: { stripeSubId: subId } });
+        if (!lease) break;
+
+        await prisma.leasePayment.create({
+          data: {
+            leaseId: lease.id,
+            type: "RENT",
+            amount: invoice.amount_due,
+            currency: invoice.currency,
+            stripeInvoiceId: invoice.id,
+            status: "FAILED",
+            dueDate: new Date(),
+          },
+        });
+        break;
+      }
+
       case "charge.refunded": {
-        // Handle refunds — mark payment as refunded
         const charge = event.data.object;
         const paymentIntentId = charge.payment_intent as string;
 
@@ -90,7 +200,6 @@ export async function POST(req: NextRequest) {
       }
 
       default:
-        // Unhandled event type — ignore
         break;
     }
 

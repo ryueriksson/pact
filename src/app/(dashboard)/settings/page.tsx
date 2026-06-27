@@ -1,12 +1,15 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isStripeConfigured } from "@/lib/stripe";
 import { redirect } from "next/navigation";
 import { ConnectStripeButton } from "@/components/connect-stripe-button";
+import { ManageBillingButton } from "@/components/manage-billing-button";
+import { DeleteAccountButton } from "@/components/delete-account-button";
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: { stripe?: string; error?: string };
+  searchParams: { stripe?: string; error?: string; upgrade?: string };
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -17,6 +20,7 @@ export default async function SettingsPage({
       name: true,
       email: true,
       plan: true,
+      stripeCustomerId: true,
       stripeConnectId: true,
       stripeConnectOnboarded: true,
     },
@@ -24,8 +28,10 @@ export default async function SettingsPage({
 
   if (!user) redirect("/login");
 
+  const isPro = user.plan === "PRO";
   const isConnected = !!user.stripeConnectId && user.stripeConnectOnboarded;
-  const isPending = !!user.stripeConnectId && !user.stripeConnectOnboarded;
+  const isPending   = !!user.stripeConnectId && !user.stripeConnectOnboarded;
+  const stripeConfigured = isStripeConfigured();
 
   return (
     <div className="max-w-2xl">
@@ -34,7 +40,12 @@ export default async function SettingsPage({
         <p className="text-gray-400 text-sm mt-1">Manage your account and payout details.</p>
       </div>
 
-      {/* Status banner */}
+      {/* Status banners */}
+      {searchParams.upgrade === "success" && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
+          🎉 Welcome to Pro! Transaction fees are now waived on all your deals.
+        </div>
+      )}
       {searchParams.stripe === "connected" && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
           🎉 Stripe connected successfully! You can now receive payments directly.
@@ -45,7 +56,12 @@ export default async function SettingsPage({
           ⚠️ Stripe onboarding isn&apos;t complete yet. Finish setup to start receiving payments.
         </div>
       )}
-      {searchParams.error && (
+      {searchParams.error === "stripe_not_configured" && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
+          Stripe is not configured on this server. Add <code className="font-mono text-xs">STRIPE_SECRET_KEY</code> to your <code className="font-mono text-xs">.env</code> and restart the dev server.
+        </div>
+      )}
+      {searchParams.error && searchParams.error !== "stripe_not_configured" && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
           ⚠️ Something went wrong connecting Stripe. Please try again.
         </div>
@@ -74,23 +90,33 @@ export default async function SettingsPage({
               <p className="text-sm font-semibold text-gray-700">Plan</p>
               <p className="text-sm text-gray-500 mt-0.5">{user.plan}</p>
             </div>
-            <a
-              href="#pricing"
-              className="text-xs text-violet-600 font-semibold hover:text-violet-700"
-            >
-              Upgrade →
-            </a>
+            {user.plan === "FREE" && (
+              <a
+                href="/upgrade"
+                className="text-xs bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors"
+              >
+                Upgrade to Pro →
+              </a>
+            )}
+            {user.plan === "PRO" && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg font-semibold">
+                  ✓ Pro
+                </span>
+                {user.stripeCustomerId && <ManageBillingButton />}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Stripe Connect */}
+      {/* Stripe Connect — Payouts */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden mb-5">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="font-bold text-gray-900">Payouts</h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              Connect your Stripe account to receive client payments directly.
+              Connect your Stripe account to receive deposits and rent directly.
             </p>
           </div>
           {/* Stripe logo */}
@@ -100,6 +126,12 @@ export default async function SettingsPage({
         </div>
 
         <div className="px-6 py-6">
+          {!stripeConfigured && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm mb-5">
+              Stripe payouts are not available until <code className="font-mono text-xs">STRIPE_SECRET_KEY</code> is set in your environment.
+            </div>
+          )}
+
           {isConnected ? (
             <div>
               <div className="flex items-center gap-3 mb-5">
@@ -117,7 +149,9 @@ export default async function SettingsPage({
               <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">Platform fee</span>
-                  <span className="font-semibold text-gray-900">1.5% per transaction</span>
+                  <span className="font-semibold text-gray-900">
+                    {isPro ? "Waived on Pro" : "1% per transaction"}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">Payout schedule</span>
@@ -125,11 +159,11 @@ export default async function SettingsPage({
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">Stripe processing fee</span>
-                  <span className="font-semibold text-gray-900">2.9% + 30¢</span>
+                  <span className="font-semibold text-gray-900">2.9% + 30¢ (card) · 0.8% capped $5 (ACH)</span>
                 </div>
               </div>
 
-              <ConnectStripeButton isConnected={true} />
+              <ConnectStripeButton isConnected={true} disabled={!stripeConfigured} />
             </div>
           ) : isPending ? (
             <div>
@@ -139,12 +173,10 @@ export default async function SettingsPage({
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Onboarding incomplete</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Finish setup to start receiving payments.
-                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">Finish setup to start receiving payments.</p>
                 </div>
               </div>
-              <ConnectStripeButton isConnected={false} isPending={true} />
+              <ConnectStripeButton isConnected={false} isPending={true} disabled={!stripeConfigured} />
             </div>
           ) : (
             <div>
@@ -152,7 +184,7 @@ export default async function SettingsPage({
                 {[
                   { icon: "⚡", title: "Instant setup", desc: "2 min onboarding via Stripe" },
                   { icon: "💸", title: "Direct payouts", desc: "Money goes straight to your bank" },
-                  { icon: "🔒", title: "Bank-level security", desc: "PCI compliant, Stripe handles it all" },
+                  { icon: "🏦", title: "Card or ACH", desc: "Tenants choose how to pay" },
                 ].map((f) => (
                   <div key={f.title} className="bg-gray-50 rounded-xl p-4 text-center">
                     <div className="text-2xl mb-2">{f.icon}</div>
@@ -162,15 +194,17 @@ export default async function SettingsPage({
                 ))}
               </div>
 
-              <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 mb-5">
-                <p className="text-xs text-violet-700 leading-relaxed">
-                  <strong>How it works:</strong> When a client pays through your proposal link,
-                  the money goes directly to your Stripe account. Pact takes a 1.5% platform fee.
-                  Stripe charges their standard 2.9% + 30¢ processing fee.
+              <div className="bg-sky-50 border border-sky-100 rounded-xl p-4 mb-5">
+                <p className="text-xs text-sky-700 leading-relaxed">
+                  <strong>How it works:</strong> When a tenant or client pays through their link,
+                  the money goes directly to your Stripe account.
+                  {isPro
+                    ? " On Pro, Pact does not charge a platform fee — only Stripe processing applies."
+                    : " Pact takes a 1% platform fee. Stripe charges 2.9% + 30¢ for cards or 0.8% (max $5) for ACH bank transfers."}
                 </p>
               </div>
 
-              <ConnectStripeButton isConnected={false} />
+              <ConnectStripeButton isConnected={false} disabled={!stripeConfigured} />
             </div>
           )}
         </div>
@@ -185,12 +219,10 @@ export default async function SettingsPage({
           <div>
             <p className="text-sm font-semibold text-gray-700">Delete account</p>
             <p className="text-xs text-gray-400 mt-0.5">
-              Permanently delete your account and all proposals. Cannot be undone.
+              Permanently delete your account and all data. Cannot be undone.
             </p>
           </div>
-          <button className="text-xs border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-semibold transition-colors">
-            Delete account
-          </button>
+          <DeleteAccountButton />
         </div>
       </div>
     </div>

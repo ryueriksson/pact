@@ -1,14 +1,23 @@
 import { NextRequest } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { isStripeConfigured, STRIPE_NOT_CONFIGURED, stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { apiError, apiOk } from "@/lib/utils";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+function stripeConfigError() {
+  return apiError(
+    "Stripe is not configured yet. Add STRIPE_SECRET_KEY to your .env file and restart the dev server.",
+    503
+  );
+}
 
 // POST /api/stripe/connect
 // Creates (or retrieves) a Stripe Express account and returns the onboarding URL
 export async function POST(_req: NextRequest) {
+  if (!isStripeConfigured()) return stripeConfigError();
+
   try {
     const user = await requireAuth();
 
@@ -60,7 +69,9 @@ export async function POST(_req: NextRequest) {
 
     return apiOk({ url: accountLink.url, alreadyConnected: false });
   } catch (err) {
-    if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
+    const message = err instanceof Error ? err.message : "";
+    if (message === "Unauthorized") return apiError("Unauthorized", 401);
+    if (message === STRIPE_NOT_CONFIGURED) return stripeConfigError();
     console.error("[stripe/connect]", err);
     return apiError("Failed to start Stripe onboarding", 500);
   }
@@ -72,6 +83,10 @@ export async function GET(req: NextRequest) {
   const refresh = searchParams.get("refresh");
 
   if (refresh) {
+    if (!isStripeConfigured()) {
+      return Response.redirect(`${APP_URL}/settings?error=stripe_not_configured`);
+    }
+
     // Re-generate account link and redirect
     try {
       const user = await requireAuth();

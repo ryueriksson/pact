@@ -18,6 +18,7 @@ export async function POST(
           select: {
             stripeConnectId: true,
             stripeConnectOnboarded: true,
+            plan: true,
           },
         },
       },
@@ -47,6 +48,7 @@ export async function POST(
       connectedAccountId: proposal.user.stripeConnectId,
       successUrl: `${appUrl}/p/${params.token}?payment=success`,
       cancelUrl: `${appUrl}/p/${params.token}?payment=cancelled`,
+      waiveFee: proposal.user.plan === "PRO",
     });
 
     // Create/update payment record
