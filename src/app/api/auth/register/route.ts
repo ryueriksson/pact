@@ -1,16 +1,30 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validators";
 import { enforceRateLimit, enforceRateLimitByKey } from "@/lib/rate-limit";
 import { logAuditFromRequest } from "@/lib/audit-log";
-import { createAndSendVerificationEmail } from "@/lib/email-verification";
+import {
+  createAndSendVerificationEmail,
+  registerErrorMessage,
+} from "@/lib/email-verification";
 import { apiError, apiOk } from "@/lib/utils";
+
+export const runtime = "nodejs";
 
 const registerSuccessMessage =
   "Check your email to verify your account before signing in.";
 
 export async function POST(req: NextRequest) {
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.error("[register] DATABASE_URL is not configured");
+    return apiError(
+      "Registration is temporarily unavailable. The server database is not configured.",
+      503
+    );
+  }
+
   try {
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);
@@ -22,7 +36,6 @@ export async function POST(req: NextRequest) {
     const { name, email, password, businessCategory } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Rate limit after validation so typos don't consume the quota
     const ipLimited = await enforceRateLimit(req, "register", 20, 60 * 60 * 1000);
     if (ipLimited) return ipLimited;
 
@@ -60,19 +73,29 @@ export async function POST(req: NextRequest) {
       metadata: { businessCategory },
     });
 
-    try {
-      await createAndSendVerificationEmail({
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-      });
-    } catch (err) {
-      console.error("[register] verification email failed:", err);
-    }
+    const emailResult = await createAndSendVerificationEmail({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+    });
 
-    return apiOk({ message: registerSuccessMessage, email: normalizedEmail }, 201);
+    return apiOk(
+      {
+        message: registerSuccessMessage,
+        email: normalizedEmail,
+        verificationEmailSent: emailResult.sent,
+      },
+      201
+    );
   } catch (err) {
     console.error("[register]", err);
-    return apiError("Something went wrong", 500);
+    const message = registerErrorMessage(err);
+    const status =
+      err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"
+        ? 409
+        : err instanceof Prisma.PrismaClientInitializationError
+          ? 503
+          : 500;
+    return apiError(message, status);
   }
 }

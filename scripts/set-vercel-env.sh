@@ -18,7 +18,7 @@ DB_PASS="${DB_PASS:-$(echo "$DATABASE_URL" | sed -n 's/.*:\/\/[^:]*:\([^@]*\)@.*
 PROJECT_REF="fcwglkzfbnardhfymkah"
 REGION="eu-north-1"
 
-POOL_URL="postgresql://pact_app.${PROJECT_REF}:${DB_PASS}@aws-0-${REGION}.pooler.supabase.com:6543/postgres?pgbouncer=true"
+POOL_URL="postgresql://pact_app.${PROJECT_REF}:${DB_PASS}@aws-0-${REGION}.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
 DIRECT_POOL="postgresql://pact_app.${PROJECT_REF}:${DB_PASS}@aws-0-${REGION}.pooler.supabase.com:5432/postgres"
 
 PROD_URL="${1:-https://pact.vercel.app}"
@@ -26,6 +26,7 @@ AUTH_SECRET="${NEXTAUTH_SECRET:-$(openssl rand -base64 32)}"
 
 add_env DATABASE_URL "$POOL_URL"
 add_env DIRECT_URL "$DIRECT_POOL"
+add_env AUTH_SECRET "$AUTH_SECRET"
 add_env NEXTAUTH_SECRET "$AUTH_SECRET"
 add_env NEXTAUTH_URL "$PROD_URL"
 add_env NEXT_PUBLIC_APP_URL "$PROD_URL"

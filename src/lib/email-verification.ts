@@ -1,5 +1,7 @@
+import { PrismaClient, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isEmailConfigured, sendVerificationEmail } from "@/lib/email";
+import { logAuditEvent } from "@/lib/audit-log";
 import { generateToken } from "@/lib/tokens";
 
 const VERIFY_PREFIX = "verify-email:";
@@ -19,40 +21,44 @@ export async function createAndSendVerificationEmail({
   name?: string | null;
 }) {
   if (!isEmailConfigured()) {
+    console.warn("[email-verification] RESEND_API_KEY not configured");
     return { sent: false, reason: "email_not_configured" as const };
   }
 
-  const normalizedEmail = email.toLowerCase().trim();
-  const identifier = verificationIdentifier(normalizedEmail);
-  const token = generateToken(32);
-  const expires = new Date();
-  expires.setHours(expires.getHours() + VERIFY_EXPIRY_HOURS);
+  try {
+    const normalizedEmail = email.toLowerCase().trim();
+    const identifier = verificationIdentifier(normalizedEmail);
+    const token = generateToken(32);
+    const expires = new Date();
+    expires.setHours(expires.getHours() + VERIFY_EXPIRY_HOURS);
 
-  await prisma.verificationToken.deleteMany({ where: { identifier } });
-  await prisma.verificationToken.create({
-    data: { identifier, token, expires },
-  });
+    await prisma.verificationToken.deleteMany({ where: { identifier } });
+    await prisma.verificationToken.create({
+      data: { identifier, token, expires },
+    });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const verifyUrl = `${appUrl}/verify-email?token=${token}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const verifyUrl = `${appUrl}/verify-email?token=${token}`;
 
-  await sendVerificationEmail({
-    to: normalizedEmail,
-    name: name ?? normalizedEmail,
-    verifyUrl,
-  });
+    await sendVerificationEmail({
+      to: normalizedEmail,
+      name: name ?? normalizedEmail,
+      verifyUrl,
+    });
 
-  await prisma.auditLog.create({
-    data: {
+    await logAuditEvent({
       action: "EMAIL_VERIFICATION_SENT",
       actorId: userId,
       actorEmail: normalizedEmail,
       resourceType: "user",
       resourceId: userId,
-    },
-  });
+    });
 
-  return { sent: true as const };
+    return { sent: true as const };
+  } catch (err) {
+    console.error("[email-verification]", err);
+    return { sent: false, reason: "send_failed" as const };
+  }
 }
 
 export async function verifyEmailToken(token: string) {
@@ -87,15 +93,34 @@ export async function verifyEmailToken(token: string) {
     await prisma.verificationToken.delete({ where: { token } });
   }
 
-  await prisma.auditLog.create({
-    data: {
-      action: "EMAIL_VERIFIED",
-      actorId: user.id,
-      actorEmail: email,
-      resourceType: "user",
-      resourceId: user.id,
-    },
+  await logAuditEvent({
+    action: "EMAIL_VERIFIED",
+    actorId: user.id,
+    actorEmail: email,
+    resourceType: "user",
+    resourceId: user.id,
   });
 
   return { ok: true as const, userId: user.id, email };
 }
+
+function registerErrorMessage(err: unknown): string {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === "P2002") {
+      return "An account with this email already exists. Try signing in instead.";
+    }
+  }
+
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    return "The server could not connect to the database. Please try again in a few minutes.";
+  }
+
+  const message = err instanceof Error ? err.message : String(err);
+  if (message.includes("DATABASE_URL") || message.includes("Can't reach database")) {
+    return "The server could not connect to the database. Please try again in a few minutes.";
+  }
+
+  return "Something went wrong. Please try again.";
+}
+
+export { registerErrorMessage };

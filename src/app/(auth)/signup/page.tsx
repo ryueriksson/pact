@@ -28,20 +28,33 @@ export default function SignupPage() {
       return;
     }
 
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, businessCategory }),
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, businessCategory }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Registration failed");
+      let data: { error?: string; message?: string; email?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        setError("The server returned an unexpected response. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.error ?? "Registration failed");
+        setLoading(false);
+        return;
+      }
+
+      router.push(`/verify-email?email=${encodeURIComponent(data.email ?? email)}`);
+    } catch {
+      setError("Could not reach the server. Check your connection and try again.");
       setLoading(false);
-      return;
     }
-
-    router.push(`/verify-email?email=${encodeURIComponent(email)}`);
   }
 
   return (
