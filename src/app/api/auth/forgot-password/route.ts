@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isEmailConfigured, sendPasswordResetEmail } from "@/lib/email";
 import { generateToken } from "@/lib/tokens";
 import { forgotPasswordSchema } from "@/lib/validators";
+import { enforceRateLimit, enforceRateLimitByKey } from "@/lib/rate-limit";
 import { apiError, apiOk } from "@/lib/utils";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -14,6 +15,9 @@ const successMessage =
 // POST /api/auth/forgot-password
 export async function POST(req: NextRequest) {
   try {
+    const limited = await enforceRateLimit(req, "forgot-password", 5, 60 * 60 * 1000);
+    if (limited) return limited;
+
     if (!isEmailConfigured()) {
       return apiError(
         "Email is not configured yet. Add RESEND_API_KEY to your environment.",
@@ -29,6 +33,14 @@ export async function POST(req: NextRequest) {
     }
 
     const email = parsed.data.email.toLowerCase().trim();
+
+    const emailLimited = await enforceRateLimitByKey(
+      "forgot-password-email",
+      email,
+      3,
+      60 * 60 * 1000
+    );
+    if (emailLimited) return emailLimited;
 
     const user = await prisma.user.findUnique({
       where: { email },

@@ -61,6 +61,27 @@ enum LeasePaymentType {
   RENT
 }
 
+enum AuditAction {
+  USER_REGISTERED
+  USER_LOGIN
+  USER_LOGIN_FAILED
+  EMAIL_VERIFIED
+  EMAIL_VERIFICATION_SENT
+  PASSWORD_RESET
+  ACCOUNT_DELETED
+  PROPOSAL_PUBLISHED
+  PROPOSAL_VIEWED
+  PROPOSAL_SIGNED
+  PROPOSAL_PAYMENT_INITIATED
+  LEASE_CREATED
+  LEASE_PUBLISHED
+  LEASE_SIGNED
+  LEASE_PAYMENT_INITIATED
+  LEASE_DOCUMENT_ACCESSED
+  LEASE_DOCUMENT_UPLOADED
+  STRIPE_WEBHOOK
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -201,9 +222,9 @@ model Lease {
   // Existing tenants: skip the e-sign step, go straight to payments
   skipSigning     Boolean       @default(false)
 
-  // Status + shareable token (set at creation)
+  // Status + cryptographically secure share token (set at creation, rotated on publish)
   status          LeaseStatus   @default(DRAFT)
-  token           String        @unique @default(cuid())
+  token           String        @unique
 
   // Stripe subscription ID (set after tenant subscribes)
   stripeSubId     String?       @unique
@@ -289,4 +310,32 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+
+model RateLimitBucket {
+  key       String   @id
+  count     Int      @default(1)
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  action       AuditAction
+  actorId      String?
+  actorEmail   String?
+  resourceType String?
+  resourceId   String?
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
 }

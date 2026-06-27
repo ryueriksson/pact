@@ -1,12 +1,17 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rate-limit";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 
 // GET /api/p/[token] — public endpoint for client proposal view
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { token: string } }
 ) {
+  const limited = await enforceRateLimit(req, "proposal-view", 60, 60 * 1000);
+  if (limited) return limited;
+
   const proposal = await prisma.proposal.findUnique({
     where: { token: params.token },
     include: {
@@ -32,6 +37,12 @@ export async function GET(
     await prisma.proposal.update({
       where: { id: proposal.id },
       data: { status: "VIEWED" },
+    });
+
+    await logAuditFromRequest(req, {
+      action: "PROPOSAL_VIEWED",
+      resourceType: "proposal",
+      resourceId: proposal.id,
     });
   }
 

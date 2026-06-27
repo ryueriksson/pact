@@ -1,11 +1,12 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createCheckoutSession } from "@/lib/stripe";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 
 // POST /api/p/[token]/payment — create Stripe Checkout session
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { token: string } }
 ) {
   try {
@@ -25,6 +26,9 @@ export async function POST(
     });
 
     if (!proposal) return apiError("Proposal not found", 404);
+    if (proposal.status === "CANCELLED") {
+      return apiError("This proposal has been cancelled", 410);
+    }
     if (!proposal.depositAmount) return apiError("No payment required", 400);
     if (!proposal.contract?.signedAt) return apiError("Contract must be signed first", 409);
     if (proposal.payment?.status === "PAID") return apiError("Already paid", 409);
@@ -65,6 +69,13 @@ export async function POST(
         stripeSessionId: session.id,
         status: "PENDING",
       },
+    });
+
+    await logAuditFromRequest(req, {
+      action: "PROPOSAL_PAYMENT_INITIATED",
+      resourceType: "proposal",
+      resourceId: proposal.id,
+      metadata: { amount: proposal.depositAmount },
     });
 
     return apiOk({ url: session.url });

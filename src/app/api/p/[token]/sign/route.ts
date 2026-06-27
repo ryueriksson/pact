@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signContractSchema } from "@/lib/validators";
 import { sendSignedNotification } from "@/lib/email";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 
 // POST /api/p/[token]/sign — client submits e-signature
@@ -23,6 +24,9 @@ export async function POST(
     });
 
     if (!proposal) return apiError("Proposal not found", 404);
+    if (proposal.status === "CANCELLED") {
+      return apiError("This proposal has been cancelled", 410);
+    }
     if (proposal.expiresAt && proposal.expiresAt < new Date()) {
       return apiError("Proposal has expired", 410);
     }
@@ -74,6 +78,13 @@ export async function POST(
       clientName: parsed.data.signerName,
       proposalTitle: proposal.title,
       proposalId: proposal.id,
+    });
+
+    await logAuditFromRequest(req, {
+      action: "PROPOSAL_SIGNED",
+      resourceType: "proposal",
+      resourceId: proposal.id,
+      metadata: { signerEmail: parsed.data.signerEmail },
     });
 
     return apiOk({ success: true, requiresPayment: !!proposal.depositAmount });

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ClientLeaseView } from "@/components/client-lease-view";
+import { isLeasePubliclyAccessible } from "@/lib/lease-access";
 
 export default async function TenantLeasePage({ params }: { params: { token: string } }) {
   const lease = await prisma.lease.findUnique({
@@ -12,7 +13,9 @@ export default async function TenantLeasePage({ params }: { params: { token: str
     },
   });
 
-  if (!lease || lease.status === "CANCELLED") notFound();
+  if (!lease || lease.status === "CANCELLED" || !isLeasePubliclyAccessible(lease.status)) {
+    notFound();
+  }
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
@@ -28,7 +31,7 @@ export default async function TenantLeasePage({ params }: { params: { token: str
           currency: lease.currency,
           leaseStart: lease.leaseStart.toISOString(),
           leaseEnd: lease.leaseEnd.toISOString(),
-          leaseDocUrl: lease.leaseDocUrl,
+          hasLeaseDocument: !!lease.leaseDocUrl,
           contractBody: lease.contractBody,
           status: lease.status,
           skipSigning: lease.skipSigning,

@@ -295,3 +295,38 @@ export async function sendPasswordResetEmail({
     `,
   });
 }
+
+export async function sendVerificationEmail({
+  to,
+  name,
+  verifyUrl,
+}: {
+  to: string;
+  name: string;
+  verifyUrl: string;
+}) {
+  return sendEmail({
+    to,
+    subject: "Verify your Pact email address",
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
+        <h1 style="font-size:24px;margin-bottom:8px;">Verify your email</h1>
+        <p style="color:#555;font-size:16px;line-height:1.6;">
+          Hi ${name}, thanks for signing up for Pact.
+          Please confirm your email address to secure your account and access your dashboard.
+          This link expires in 24 hours.
+        </p>
+        <a href="${verifyUrl}"
+           style="display:inline-block;margin-top:24px;padding:14px 28px;
+                  background:#0284C7;color:#fff;border-radius:8px;
+                  text-decoration:none;font-weight:600;font-size:15px;">
+          Verify email →
+        </a>
+        <p style="color:#aaa;font-size:13px;margin-top:32px;">
+          If you didn't create a Pact account, you can safely ignore this email.
+        </p>
+        <p style="color:#aaa;font-size:12px;margin-top:24px;">— Pact</p>
+      </div>
+    `,
+  });
+}

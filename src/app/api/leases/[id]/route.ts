@@ -43,7 +43,7 @@ export async function PATCH(
 
     const body = await req.json();
     const updated = await prisma.lease.update({
-      where: { id: params.id },
+      where: { id: params.id, userId: user.id },
       data: {
         propertyAddress: body.propertyAddress ?? lease.propertyAddress,
         unitNumber: body.unitNumber !== undefined ? body.unitNumber : lease.unitNumber,

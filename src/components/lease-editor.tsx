@@ -111,7 +111,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
       setError(data.error ?? "Upload failed");
       return;
     }
-    setLeaseDocUrl(data.url);
+    setLeaseDocUrl(data.blobRef);
     setUploadName(file.name);
   }
 

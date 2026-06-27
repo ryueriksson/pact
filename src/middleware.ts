@@ -38,6 +38,20 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
+  const emailVerified = req.auth?.user?.isEmailVerified;
+  if (
+    req.auth &&
+    emailVerified === false &&
+    isProtected &&
+    pathname !== "/verify-email"
+  ) {
+    return NextResponse.redirect(new URL("/verify-email", req.url));
+  }
+
+  if (req.auth && pathname === "/verify-email" && emailVerified === true) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
   if (req.auth && !category && pathname !== "/onboarding" && isProtected) {
     return NextResponse.redirect(new URL("/onboarding", req.url));
   }

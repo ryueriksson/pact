@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { requireLeaseAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { generateToken } from "@/lib/tokens";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 
 // POST /api/leases — create a new lease
@@ -30,6 +32,7 @@ export async function POST(req: NextRequest) {
     const lease = await prisma.lease.create({
       data: {
         userId: user.id,
+        token: generateToken(32),
         propertyAddress,
         unitNumber: unitNumber || null,
         tenantName,
@@ -43,6 +46,14 @@ export async function POST(req: NextRequest) {
         contractBody: contractBody || null,
         skipSigning,
       },
+    });
+
+    await logAuditFromRequest(req, {
+      action: "LEASE_CREATED",
+      actorId: user.id,
+      actorEmail: user.email,
+      resourceType: "lease",
+      resourceId: lease.id,
     });
 
     return apiOk({ lease }, 201);

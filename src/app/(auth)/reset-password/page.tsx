@@ -78,9 +78,9 @@ function ResetPasswordForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={8}
+          minLength={12}
           className="w-full border-2 border-gray-200 focus:border-sky-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors bg-white"
-          placeholder="••••••••"
+          placeholder="Min. 12 characters, letters and numbers"
         />
       </div>
       <div>
@@ -90,9 +90,9 @@ function ResetPasswordForm() {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           required
-          minLength={8}
+          minLength={12}
           className="w-full border-2 border-gray-200 focus:border-sky-400 rounded-xl px-4 py-3 text-sm outline-none transition-colors bg-white"
-          placeholder="••••••••"
+          placeholder="Min. 12 characters, letters and numbers"
         />
       </div>
       <button

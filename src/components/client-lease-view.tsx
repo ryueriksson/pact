@@ -17,7 +17,7 @@ type Props = {
     currency: string;
     leaseStart: string;
     leaseEnd: string;
-    leaseDocUrl: string | null;
+    hasLeaseDocument: boolean;
     contractBody: string | null;
     status: string;
     skipSigning: boolean;
@@ -217,11 +217,11 @@ export function ClientLeaseView({ token, lease }: Props) {
             </div>
 
             {/* PDF view */}
-            {lease.leaseDocUrl && (
+            {lease.hasLeaseDocument && (
               <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
                 <h2 className="font-bold text-gray-900 mb-3 text-sm">Lease document</h2>
                 <iframe
-                  src={lease.leaseDocUrl}
+                  src={`/api/l/${token}/document`}
                   className="w-full h-[500px] rounded-lg border border-gray-100"
                   title="Lease document"
                 />
@@ -229,7 +229,7 @@ export function ClientLeaseView({ token, lease }: Props) {
             )}
 
             {/* Contract text fallback */}
-            {!lease.leaseDocUrl && lease.contractBody && (
+            {!lease.hasLeaseDocument && lease.contractBody && (
               <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
                 <h2 className="font-bold text-gray-900 mb-3 text-sm">Lease terms</h2>
                 <div className="bg-gray-50 rounded-lg p-4 md:p-5 max-h-80 overflow-y-auto">
@@ -255,7 +255,7 @@ export function ClientLeaseView({ token, lease }: Props) {
             <div className="bg-white border border-gray-200 rounded-xl p-6 md:p-8 mb-6">
               <h2 className="font-semibold text-gray-900 mb-4">Sign the lease</h2>
 
-              {!lease.leaseDocUrl && lease.contractBody && (
+              {!lease.hasLeaseDocument && lease.contractBody && (
                 <div className="bg-gray-50 rounded-lg p-4 md:p-5 mb-6 max-h-64 overflow-y-auto">
                   <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans leading-relaxed">
                     {lease.contractBody}

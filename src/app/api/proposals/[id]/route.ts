@@ -70,7 +70,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       }
 
       return tx.proposal.update({
-        where: { id: params.id },
+        where: { id: params.id, userId: user.id },
         data: proposalData,
         include: { sections: { orderBy: { order: "asc" } } },
       });
@@ -94,7 +94,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     });
     if (!existing) return apiError("Not found", 404);
 
-    await prisma.proposal.delete({ where: { id: params.id } });
+    await prisma.proposal.delete({ where: { id: params.id, userId: user.id } });
 
     return apiOk({ success: true });
   } catch (err) {

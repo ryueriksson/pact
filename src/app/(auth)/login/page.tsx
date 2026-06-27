@@ -10,19 +10,24 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const verified = searchParams.get("verified");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState(
+    verified ? "Email verified. You can sign in now." : ""
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setNotice("");
     const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) {
-      setError("Invalid email or password");
+      setError("Invalid email or password. If you just signed up, verify your email first.");
       setLoading(false);
     } else {
       router.push(callbackUrl);
@@ -55,9 +60,17 @@ function LoginForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {notice && (
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">
+            {notice}
+          </div>
+        )}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
-            {error}
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+            {error}{" "}
+            <Link href="/verify-email" className="underline font-semibold">
+              Resend verification email
+            </Link>
           </div>
         )}
         <div>

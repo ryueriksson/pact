@@ -2,11 +2,16 @@ import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { resetPasswordSchema } from "@/lib/validators";
+import { enforceRateLimit } from "@/lib/rate-limit";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 
 // POST /api/auth/reset-password
 export async function POST(req: NextRequest) {
   try {
+    const limited = await enforceRateLimit(req, "reset-password", 10, 60 * 60 * 1000);
+    if (limited) return limited;
+
     const body = await req.json();
     const parsed = resetPasswordSchema.safeParse(body);
 
@@ -48,6 +53,14 @@ export async function POST(req: NextRequest) {
       prisma.session.deleteMany({ where: { userId: user.id } }),
       prisma.verificationToken.delete({ where: { token } }),
     ]);
+
+    await logAuditFromRequest(req, {
+      action: "PASSWORD_RESET",
+      actorId: user.id,
+      actorEmail: email,
+      resourceType: "user",
+      resourceId: user.id,
+    });
 
     return apiOk({ message: "Password updated. You can sign in now." });
   } catch (err) {

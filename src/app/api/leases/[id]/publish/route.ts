@@ -1,12 +1,14 @@
 import { NextRequest } from "next/server";
 import { requireLeaseAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { apiError, apiOk } from "@/lib/utils";
+import { generateToken } from "@/lib/tokens";
 import { sendLeaseLink } from "@/lib/email";
+import { logAuditFromRequest } from "@/lib/audit-log";
+import { apiError, apiOk } from "@/lib/utils";
 
 // POST /api/leases/[id]/publish — send to tenant
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -18,9 +20,11 @@ export async function POST(
     if (!lease) return apiError("Not found", 404);
     if (lease.status !== "DRAFT") return apiError("Lease already sent");
 
+    const shareToken = generateToken(32);
+
     await prisma.lease.update({
-      where: { id: params.id },
-      data: { status: "SENT" },
+      where: { id: params.id, userId: user.id },
+      data: { status: "SENT", token: shareToken },
     });
 
     try {
@@ -29,13 +33,22 @@ export async function POST(
         tenantName: lease.tenantName,
         senderName: user.name ?? user.email ?? "Your landlord",
         propertyAddress: lease.propertyAddress,
-        token: lease.token,
+        token: shareToken,
       });
     } catch (e) {
       console.error("[lease publish] email failed:", e);
     }
 
-    return apiOk({ token: lease.token });
+    await logAuditFromRequest(req, {
+      action: "LEASE_PUBLISHED",
+      actorId: user.id,
+      actorEmail: user.email,
+      resourceType: "lease",
+      resourceId: lease.id,
+      metadata: { tenantEmail: lease.tenantEmail },
+    });
+
+    return apiOk({ token: shareToken });
   } catch (err) {
     if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
     if ((err as Error).message === "Forbidden") return apiError("Forbidden", 403);

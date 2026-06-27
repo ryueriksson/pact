@@ -5,15 +5,16 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validators";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { logAuditEvent } from "@/lib/audit-log";
 import { canAccessLeases, canAccessProposals } from "@/lib/business-categories";
 import { authConfig } from "@/lib/auth.config";
 
-async function loadBusinessCategory(userId: string) {
-  const user = await prisma.user.findUnique({
+async function loadUserAuthFields(userId: string) {
+  return prisma.user.findUnique({
     where: { id: userId },
-    select: { businessCategory: true },
+    select: { businessCategory: true, emailVerified: true, email: true },
   });
-  return user?.businessCategory ?? null;
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -34,8 +35,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
+        const email = parsed.data.email.toLowerCase().trim();
+
+        const loginLimited = await checkRateLimit(
+          `login:${email}`,
+          10,
+          15 * 60 * 1000
+        );
+        if (!loginLimited.success) return null;
+
         const user = await prisma.user.findUnique({
-          where: { email: parsed.data.email },
+          where: { email },
           select: {
             id: true,
             email: true,
@@ -43,17 +53,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: true,
             passwordHash: true,
             businessCategory: true,
+            emailVerified: true,
           },
         });
 
-        if (!user || !user.passwordHash) return null;
+        if (!user || !user.passwordHash) {
+          await logAuditEvent({
+            action: "USER_LOGIN_FAILED",
+            actorEmail: email,
+            metadata: { reason: "unknown_account" },
+          });
+          return null;
+        }
 
         const passwordValid = await bcrypt.compare(
           parsed.data.password,
           user.passwordHash
         );
 
-        if (!passwordValid) return null;
+        if (!passwordValid) {
+          await logAuditEvent({
+            action: "USER_LOGIN_FAILED",
+            actorId: user.id,
+            actorEmail: user.email,
+            metadata: { reason: "invalid_password" },
+          });
+          return null;
+        }
+
+        if (!user.emailVerified) {
+          await logAuditEvent({
+            action: "USER_LOGIN_FAILED",
+            actorId: user.id,
+            actorEmail: user.email,
+            metadata: { reason: "email_not_verified" },
+          });
+          return null;
+        }
+
+        await logAuditEvent({
+          action: "USER_LOGIN",
+          actorId: user.id,
+          actorEmail: user.email,
+          resourceType: "user",
+          resourceId: user.id,
+        });
 
         return {
           id: user.id,
@@ -61,17 +105,47 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           image: user.image,
           businessCategory: user.businessCategory,
+          emailVerified: true,
+          isEmailVerified: true,
         };
       },
     }),
   ],
+  events: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google" && user.id) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { emailVerified: new Date() },
+        });
+        await logAuditEvent({
+          action: "USER_LOGIN",
+          actorId: user.id,
+          actorEmail: user.email ?? undefined,
+          resourceType: "user",
+          resourceId: user.id,
+          metadata: { provider: "google" },
+        });
+      }
+    },
+  },
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session, account }) {
       const baseToken = await authConfig.callbacks.jwt({ token, user, trigger, session });
 
-      if (user?.id && user.businessCategory === undefined) {
-        baseToken.businessCategory = await loadBusinessCategory(user.id);
+      if (user?.id) {
+        const dbUser = await loadUserAuthFields(user.id);
+        baseToken.businessCategory = dbUser?.businessCategory ?? null;
+        baseToken.isEmailVerified = !!dbUser?.emailVerified;
+      }
+
+      if (account?.provider === "google") {
+        baseToken.isEmailVerified = true;
+      }
+
+      if (trigger === "update" && session && "isEmailVerified" in session) {
+        baseToken.isEmailVerified = !!session.isEmailVerified;
       }
 
       return baseToken;
@@ -85,7 +159,12 @@ export async function requireAuth() {
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
-  return session.user as { id: string; email: string; name?: string | null };
+  return session.user as {
+    id: string;
+    email: string;
+    name?: string | null;
+    isEmailVerified: boolean;
+  };
 }
 
 /** Helper: get current user record from the database */
@@ -98,11 +177,16 @@ export async function requireUser() {
       email: true,
       name: true,
       businessCategory: true,
+      emailVerified: true,
     },
   });
 
   if (!user) {
     throw new Error("Unauthorized");
+  }
+
+  if (!user.emailVerified) {
+    throw new Error("EmailNotVerified");
   }
 
   return user;

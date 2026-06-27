@@ -38,7 +38,7 @@ export default function LandingPage() {
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 bg-sky-50 border border-sky-200 text-sky-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 uppercase tracking-wide">
             <span className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse" />
-            Built for freelancers & agencies
+            Built for freelancers, landlords & agencies
           </div>
 
           <h1 className="text-5xl md:text-6xl font-black tracking-tight text-gray-900 mb-6 leading-[1.08]">
@@ -52,8 +52,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Stop juggling DocuSign, FreshBooks, and Google Docs.
-            Send your client one link — they read, sign, and pay. Done.
+            Stop juggling DocuSign, spreadsheets, and payment apps.
+            Send one link — clients sign proposals and pay deposits, tenants sign leases and set up rent.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -73,7 +73,7 @@ export default function LandingPage() {
                 <div key={i} className={`w-7 h-7 rounded-full border-2 border-white ${c}`} />
               ))}
             </div>
-            <span className="ml-2">Trusted by <strong className="text-gray-600">2,400+</strong> freelancers</span>
+            <span className="ml-2">Trusted by <strong className="text-gray-600">2,400+</strong> professionals & landlords</span>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export default function LandingPage() {
             Used by independent professionals worldwide
           </p>
           <div className="flex flex-wrap justify-center gap-8 items-center opacity-40 grayscale">
-            {["Designer", "Developer", "Copywriter", "Consultant", "Photographer", "Agency"].map((role) => (
+            {["Designer", "Developer", "Landlord", "Consultant", "Agency", "Property manager"].map((role) => (
               <span key={role} className="text-sm font-bold text-gray-600 tracking-tight">{role}</span>
             ))}
           </div>
@@ -142,10 +142,10 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-              Everything you need to close the deal
+              Everything you need to close deals & manage leases
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Replace 4 tools with one. Faster for you, simpler for your client.
+              Proposals for freelancers. Leases, deposits, and recurring rent for landlords. One platform.
             </p>
           </div>
 
@@ -154,38 +154,38 @@ export default function LandingPage() {
               {
                 color: "bg-sky-50 border-sky-100",
                 iconBg: "bg-sky-100",
-                title: "Beautiful proposals",
-                desc: "Build professional proposals in minutes with our section builder — text, pricing tables, and more. Looks like you hired a designer.",
+                title: "Proposals & leases",
+                desc: "Freelancers build polished proposals. Landlords upload lease PDFs or use built-in templates — all in one place.",
               },
               {
                 color: "bg-sky-50 border-sky-100",
                 iconBg: "bg-sky-100",
                 title: "Built-in e-signature",
-                desc: "Clients sign directly in their browser. Timestamp, IP address, and signature captured automatically. No DocuSign account needed.",
+                desc: "Clients and tenants sign directly in their browser. Timestamp, IP address, and signature captured automatically.",
               },
               {
                 color: "bg-sky-50 border-sky-100",
                 iconBg: "bg-sky-100",
                 title: "Stripe payments",
-                desc: "Collect your deposit the moment they sign. Funds arrive in 2 business days. No more chasing invoices.",
+                desc: "Collect proposal deposits or lease security deposits. Landlords can set up automatic monthly rent collection via Stripe.",
               },
               {
                 color: "bg-fuchsia-50 border-fuchsia-100",
                 iconBg: "bg-fuchsia-100",
                 title: "One shareable link",
-                desc: "One link does it all — review, sign, pay. No logins, no apps, no confusion for your client.",
+                desc: "One link per proposal or lease — review, sign, pay. No logins required for clients or tenants.",
               },
               {
                 color: "bg-blue-50 border-blue-100",
                 iconBg: "bg-blue-100",
                 title: "Automatic notifications",
-                desc: "Get notified the moment your client views, signs, or pays. Know exactly where every deal stands.",
+                desc: "Get notified when someone views, signs, or pays. Know exactly where every deal and lease stands.",
               },
               {
                 color: "bg-emerald-50 border-emerald-100",
                 iconBg: "bg-emerald-100",
-                title: "Deal dashboard",
-                desc: "Track every proposal's status — draft, sent, viewed, signed, paid — all in one clean view.",
+                title: "Unified dashboard",
+                desc: "Track proposals and leases — draft, sent, signed, paid, active — with full payment history in one view.",
               },
             ].map((f) => (
               <div key={f.title} className={`rounded-2xl border p-6 ${f.color}`}>
@@ -202,9 +202,9 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-              From quote to cash in minutes
+              From quote to cash — or lease to rent
             </h2>
-            <p className="text-gray-500 text-lg">Three steps. No friction.</p>
+            <p className="text-gray-500 text-lg">Three steps. Works for clients and tenants alike.</p>
           </div>
 
           <div className="relative">
@@ -215,20 +215,20 @@ export default function LandingPage() {
               {[
                 {
                   step: "01",
-                  title: "Build your proposal",
-                  desc: "Add your sections, pricing, and contract. Takes less than 5 minutes.",
+                  title: "Create your document",
+                  desc: "Build a proposal with pricing, or set up a lease with rent, deposit, and dates.",
                   color: "bg-sky-600",
                 },
                 {
                   step: "02",
                   title: "Send one link",
-                  desc: "Your client gets an email with a single link. No account required on their end.",
+                  desc: "Your client or tenant gets an email with a single link. No account required on their end.",
                   color: "bg-sky-700",
                 },
                 {
                   step: "03",
-                  title: "Get paid",
-                  desc: "Client reviews, signs, and pays the deposit — all in one seamless flow.",
+                  title: "Sign & get paid",
+                  desc: "They review, sign, and pay — deposit for proposals, deposit + recurring rent for leases.",
                   color: "bg-purple-600",
                 },
               ].map((s) => (
@@ -263,7 +263,7 @@ export default function LandingPage() {
               <div className="text-sm text-gray-400 mb-8">Forever free</div>
               <ul className="space-y-3 mb-8">
                 {[
-                  "3 proposals per month",
+                  "3 proposals or leases per month",
                   "E-signature included",
                   "Payment collection (1% fee)",
                   "Email notifications",
@@ -296,10 +296,10 @@ export default function LandingPage() {
                 <div className="text-sm text-sky-200 mb-8">per month</div>
                 <ul className="space-y-3 mb-8">
                   {[
-                    "Unlimited proposals",
+                    "Unlimited proposals & leases",
                     "Custom contract templates",
                     "No transaction fees",
-                    "Client portal branding",
+                    "Recurring rent collection",
                     "Priority support",
                     "Team members (coming soon)",
                   ].map((f) => (
@@ -332,16 +332,16 @@ export default function LandingPage() {
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full" />
           <div className="relative">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-              Ready to close your next deal?
+              Ready to simplify proposals & leases?
             </h2>
             <p className="text-sky-200 text-lg mb-8">
-              Join thousands of freelancers who get paid faster with Pact.
+              Join freelancers, landlords, and agencies who get paid faster with Pact.
             </p>
             <Link
               href="/signup"
               className="inline-block bg-white text-sky-700 hover:bg-sky-50 px-10 py-4 rounded-xl font-black text-lg transition-all shadow-2xl"
             >
-              Create your first proposal →
+              Get started free →
             </Link>
           </div>
         </div>

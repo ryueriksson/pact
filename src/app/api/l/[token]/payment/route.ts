@@ -1,5 +1,11 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  isLeasePubliclyAccessible,
+  LEASE_NOT_SENT_MESSAGE,
+} from "@/lib/lease-access";
+import { enforceRateLimit } from "@/lib/rate-limit";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 import { createLeaseDepositSession, createLeaseRentSubscription } from "@/lib/stripe";
 
@@ -9,6 +15,9 @@ export async function POST(
   { params }: { params: { token: string } }
 ) {
   try {
+    const limited = await enforceRateLimit(req, "lease-payment", 20, 60 * 60 * 1000);
+    if (limited) return limited;
+
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") ?? "deposit"; // "deposit" | "rent"
 
@@ -22,6 +31,10 @@ export async function POST(
     });
 
     if (!lease) return apiError("Not found", 404);
+    if (lease.status === "CANCELLED") return apiError("Lease cancelled", 410);
+    if (!isLeasePubliclyAccessible(lease.status)) {
+      return apiError(LEASE_NOT_SENT_MESSAGE, 403);
+    }
     if (!lease.skipSigning && !lease.leaseContract?.signedAt) {
       return apiError("Lease must be signed first", 409);
     }
@@ -74,6 +87,13 @@ export async function POST(
         });
       }
 
+      await logAuditFromRequest(req, {
+        action: "LEASE_PAYMENT_INITIATED",
+        resourceType: "lease",
+        resourceId: lease.id,
+        metadata: { type: "deposit", amount: lease.depositAmount },
+      });
+
       return apiOk({ url: session.url });
     }
 
@@ -90,6 +110,13 @@ export async function POST(
         successUrl: `${appUrl}/l/${params.token}?payment=rent_success`,
         cancelUrl: `${appUrl}/l/${params.token}?payment=cancelled`,
         waiveFee: lease.user.plan === "PRO",
+      });
+
+      await logAuditFromRequest(req, {
+        action: "LEASE_PAYMENT_INITIATED",
+        resourceType: "lease",
+        resourceId: lease.id,
+        metadata: { type: "rent", amount: lease.monthlyRent },
       });
 
       return apiOk({ url: session.url });

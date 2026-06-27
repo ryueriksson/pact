@@ -1,13 +1,14 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { requireProposalAccess } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { generateToken, defaultExpiry } from "@/lib/tokens";
 import { sendProposalLink } from "@/lib/email";
+import { logAuditFromRequest } from "@/lib/audit-log";
 import { apiError, apiOk } from "@/lib/utils";
 
 // POST /api/proposals/[id]/publish
 // Generates a unique share token and emails the client
-export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const user = await requireProposalAccess();
 
@@ -45,6 +46,15 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       console.error("[publish] email failed:", e);
       emailSent = false;
     }
+
+    await logAuditFromRequest(req, {
+      action: "PROPOSAL_PUBLISHED",
+      actorId: user.id,
+      actorEmail: user.email,
+      resourceType: "proposal",
+      resourceId: proposal.id,
+      metadata: { emailSent, clientEmail: proposal.clientEmail },
+    });
 
     return apiOk({
       token: updated.token,

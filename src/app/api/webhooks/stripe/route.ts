@@ -30,10 +30,18 @@ export async function POST(req: NextRequest) {
         const session = event.data.object;
         const eventType = session.metadata?.type;
 
+        if (session.mode === "payment" && session.payment_status !== "paid") {
+          break;
+        }
+        if (session.mode === "subscription" && session.status !== "complete") {
+          break;
+        }
+
         // ── Pro subscription — flip user plan ──────────────────
         if (eventType === "pro_subscription") {
           const userId = session.metadata?.userId;
           if (!userId) break;
+          if (session.amount_total !== 3000) break;
 
           await prisma.user.update({
             where: { id: userId },
@@ -51,7 +59,12 @@ export async function POST(req: NextRequest) {
           if (!leaseId) break;
 
           await prisma.leasePayment.updateMany({
-            where: { leaseId, type: "DEPOSIT", status: "PENDING" },
+            where: {
+              leaseId,
+              type: "DEPOSIT",
+              status: "PENDING",
+              stripeSessionId: session.id,
+            },
             data: { status: "PAID", paidAt: new Date() },
           });
           break;
@@ -139,8 +152,9 @@ export async function POST(req: NextRequest) {
         });
         if (!lease) break;
 
-        await prisma.leasePayment.create({
-          data: {
+        await prisma.leasePayment.upsert({
+          where: { stripeInvoiceId: invoice.id },
+          create: {
             leaseId: lease.id,
             type: "RENT",
             amount: invoice.amount_paid,
@@ -149,6 +163,7 @@ export async function POST(req: NextRequest) {
             status: "PAID",
             paidAt: new Date(),
           },
+          update: {},
         });
 
         const month = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
@@ -174,8 +189,9 @@ export async function POST(req: NextRequest) {
         const lease = await prisma.lease.findFirst({ where: { stripeSubId: subId } });
         if (!lease) break;
 
-        await prisma.leasePayment.create({
-          data: {
+        await prisma.leasePayment.upsert({
+          where: { stripeInvoiceId: invoice.id },
+          create: {
             leaseId: lease.id,
             type: "RENT",
             amount: invoice.amount_due,
@@ -184,6 +200,7 @@ export async function POST(req: NextRequest) {
             status: "FAILED",
             dueDate: new Date(),
           },
+          update: {},
         });
         break;
       }
