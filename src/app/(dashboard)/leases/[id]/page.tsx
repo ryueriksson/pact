@@ -42,7 +42,6 @@ export default async function LeaseDetailPage({
       {/* Sent banner */}
       {searchParams.sent && (
         <div className="bg-green-50 border border-green-200 rounded-xl px-5 py-4 mb-6 flex items-center gap-3">
-          <span className="text-xl">✅</span>
           <div>
             <p className="font-semibold text-green-800 text-sm">Lease sent to {lease.tenantEmail}!</p>
             <p className="text-xs text-green-600 mt-0.5">They&apos;ll receive an email with a link to sign and set up payments.</p>
@@ -128,7 +127,7 @@ export default async function LeaseDetailPage({
               <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
                 item.done ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-300"
               }`}>
-                {item.done ? "✓" : "○"}
+                {item.done ? "Done" : "Pending"}
               </div>
               <span className={`text-sm ${item.done ? "text-gray-700 font-medium" : "text-gray-400"}`}>
                 {item.label}

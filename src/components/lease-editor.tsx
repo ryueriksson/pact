@@ -207,7 +207,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
             disabled={loading}
             className="border-2 border-gray-200 hover:border-gray-300 px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-gray-900 transition-all disabled:opacity-50"
           >
-            {saved ? "✓ Saved" : loading ? "Saving..." : "Save draft"}
+            {saved ? "Saved" : loading ? "Saving..." : "Save draft"}
           </button>
           <button
             onClick={() => handleSave(true)}
@@ -221,7 +221,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
@@ -299,7 +299,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
               className="sr-only peer"
             />
             <div className="w-5 h-5 rounded border-2 border-gray-200 peer-checked:border-sky-500 peer-checked:bg-sky-500 transition-all flex items-center justify-center">
-              {skipSigning && <span className="text-white text-xs font-bold">✓</span>}
+              {skipSigning && <span className="text-white text-xs font-bold">Yes</span>}
             </div>
           </div>
           <div>
@@ -351,7 +351,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
         </div>
         {monthlyRent && (
           <div className="bg-sky-50 rounded-xl px-4 py-3 text-xs text-sky-700 leading-relaxed">
-            💡 {getLeasePayoutFeeMessage(monthlyRent, isPro)}
+            Note: {getLeasePayoutFeeMessage(monthlyRent, isPro)}
           </div>
         )}
       </div>
@@ -406,7 +406,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
                 : "border-gray-100 text-gray-500 hover:border-sky-200 bg-white"
             }`}
           >
-            📎 Upload PDF
+            Upload PDF
           </button>
           <button
             onClick={() => setDocMode("text")}
@@ -416,7 +416,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
                 : "border-gray-100 text-gray-500 hover:border-sky-200 bg-white"
             }`}
           >
-            ✏️ Write in editor
+            Write in editor
           </button>
         </div>
 
@@ -435,7 +435,7 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
             {leaseDocUrl ? (
               <div className="border-2 border-sky-200 bg-sky-50 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">📄</span>
+                  <span className="text-2xl"></span>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{uploadName}</p>
                     <p className="text-xs text-gray-400">PDF uploaded successfully</p>
@@ -454,7 +454,6 @@ export function LeaseEditor({ leaseId, isPro = false, initial }: Props) {
                 disabled={uploading}
                 className="w-full border-2 border-dashed border-gray-200 hover:border-sky-300 rounded-xl p-8 text-center transition-colors group disabled:opacity-50"
               >
-                <div className="text-3xl mb-2">📎</div>
                 <p className="text-sm font-semibold text-gray-600 group-hover:text-sky-600 transition-colors">
                   {uploading ? "Uploading…" : "Click to upload lease PDF"}
                 </p>

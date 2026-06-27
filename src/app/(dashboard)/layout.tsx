@@ -56,9 +56,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
               href={item.href}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-sky-50 hover:text-sky-700 font-medium transition-all group"
             >
-              <span className="w-5 text-center text-base opacity-60 group-hover:opacity-100 transition-opacity">
-                {item.icon}
-              </span>
               {item.label}
             </Link>
           ))}

@@ -43,17 +43,17 @@ export default async function SettingsPage({
       {/* Status banners */}
       {searchParams.upgrade === "success" && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
-          🎉 Welcome to Pro! Transaction fees are now waived on all your deals.
+          Welcome to Pro! Transaction fees are now waived on all your deals.
         </div>
       )}
       {searchParams.stripe === "connected" && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
-          🎉 Stripe connected successfully! You can now receive payments directly.
+          Stripe connected successfully! You can now receive payments directly.
         </div>
       )}
       {searchParams.stripe === "incomplete" && (
         <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
-          ⚠️ Stripe onboarding isn&apos;t complete yet. Finish setup to start receiving payments.
+          Stripe onboarding isn&apos;t complete yet. Finish setup to start receiving payments.
         </div>
       )}
       {searchParams.error === "stripe_not_configured" && (
@@ -63,7 +63,7 @@ export default async function SettingsPage({
       )}
       {searchParams.error && searchParams.error !== "stripe_not_configured" && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
-          ⚠️ Something went wrong connecting Stripe. Please try again.
+          Something went wrong connecting Stripe. Please try again.
         </div>
       )}
 
@@ -101,7 +101,7 @@ export default async function SettingsPage({
             {user.plan === "PRO" && (
               <div className="flex items-center gap-2">
                 <span className="text-xs bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg font-semibold">
-                  ✓ Pro
+                  Pro
                 </span>
                 {user.stripeCustomerId && <ManageBillingButton />}
               </div>
@@ -136,7 +136,7 @@ export default async function SettingsPage({
             <div>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                  <span className="text-emerald-600 text-lg">✓</span>
+                  <span className="text-emerald-600 text-sm font-bold uppercase tracking-wide">Connected</span>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Stripe account connected</p>
@@ -169,7 +169,7 @@ export default async function SettingsPage({
             <div>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-                  <span className="text-amber-600 text-lg">⏳</span>
+                  <span className="text-amber-600 text-sm font-bold uppercase tracking-wide">Pending</span>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Onboarding incomplete</p>
@@ -182,13 +182,11 @@ export default async function SettingsPage({
             <div>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 {[
-                  { icon: "⚡", title: "Instant setup", desc: "2 min onboarding via Stripe" },
-                  { icon: "💸", title: "Direct payouts", desc: "Money goes straight to your bank" },
-                  { icon: "🏦", title: "Card or ACH", desc: "Tenants choose how to pay" },
+                  { title: "Instant setup", desc: "2 min onboarding via Stripe" },
+                  { title: "Direct payouts", desc: "Money goes straight to your bank" },
+                  { title: "Card or ACH", desc: "Tenants choose how to pay" },
                 ].map((f) => (
-                  <div key={f.title} className="bg-gray-50 rounded-xl p-4 text-center">
-                    <div className="text-2xl mb-2">{f.icon}</div>
-                    <p className="text-xs font-bold text-gray-800">{f.title}</p>
+                  <div key={f.title} className="bg-gray-50 rounded-xl p-4 text-center">                    <p className="text-xs font-bold text-gray-800">{f.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{f.desc}</p>
                   </div>
                 ))}

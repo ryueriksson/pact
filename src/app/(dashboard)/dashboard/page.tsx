@@ -68,7 +68,7 @@ async function ProposalDashboard({ userId, firstName }: { userId: string; firstN
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-black text-gray-900">
-            Good {getGreeting()}, {firstName} 👋
+            Good {getGreeting()}, {firstName} 
           </h1>
           <p className="text-gray-400 text-sm mt-1">Here&apos;s what&apos;s happening with your deals.</p>
         </div>
@@ -82,16 +82,15 @@ async function ProposalDashboard({ userId, firstName }: { userId: string; firstN
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Total proposals", value: total, sub: "all time", icon: "📄", color: "bg-white" },
-          { label: "Awaiting action", value: awaiting, sub: "sent or viewed", icon: "⏳", color: "bg-white" },
-          { label: "Awaiting payment", value: statMap.SIGNED ?? 0, sub: "contracts signed", icon: "✍️", color: "bg-white" },
-          { label: "Total collected", value: `$${collected.toLocaleString()}`, sub: "all time", icon: "💰", color: "bg-gradient-to-br from-sky-600 to-sky-700", light: true },
+          { label: "Total proposals", value: total, sub: "all time", icon: "", color: "bg-white" },
+          { label: "Awaiting action", value: awaiting, sub: "sent or viewed", color: "bg-white" },
+          { label: "Awaiting payment", value: statMap.SIGNED ?? 0, sub: "contracts signed", icon: "", color: "bg-white" },
+          { label: "Total collected", value: `$${collected.toLocaleString()}`, sub: "all time", color: "bg-gradient-to-br from-sky-600 to-sky-700", light: true },
         ].map((stat) => (
           <div
             key={stat.label}
             className={`${stat.color} rounded-2xl p-5 border border-gray-100 ${stat.light ? "border-transparent shadow-lg shadow-sky-200" : "shadow-sm"}`}
           >
-            <div className="text-2xl mb-3">{stat.icon}</div>
             <div className={`text-2xl font-black ${stat.light ? "text-white" : "text-gray-900"}`}>{stat.value}</div>
             <div className={`text-xs mt-1 font-medium ${stat.light ? "text-sky-200" : "text-gray-400"}`}>{stat.label}</div>
             <div className={`text-xs ${stat.light ? "text-sky-300" : "text-gray-300"}`}>{stat.sub}</div>
@@ -106,9 +105,7 @@ async function ProposalDashboard({ userId, firstName }: { userId: string; firstN
         </div>
 
         {proposals.length === 0 ? (
-          <div className="py-20 text-center">
-            <div className="text-4xl mb-4">🚀</div>
-            <p className="font-semibold text-gray-700 mb-1">No proposals yet</p>
+          <div className="py-20 text-center">            <p className="font-semibold text-gray-700 mb-1">No proposals yet</p>
             <p className="text-sm text-gray-400 mb-6">Create your first proposal and start closing deals.</p>
             <Link href="/proposals/new" className="inline-flex items-center gap-2 bg-sky-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-sky-700 transition-colors">
               + Create first proposal
@@ -182,7 +179,7 @@ async function LandlordDashboard({ userId, firstName }: { userId: string; firstN
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-black text-gray-900">
-            Good {getGreeting()}, {firstName} 👋
+            Good {getGreeting()}, {firstName} 
           </h1>
           <p className="text-gray-400 text-sm mt-1">Here&apos;s what&apos;s happening with your properties.</p>
         </div>
@@ -196,16 +193,15 @@ async function LandlordDashboard({ userId, firstName }: { userId: string; firstN
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Total leases", value: total, sub: "all time", icon: "🏠", color: "bg-white" },
-          { label: "Awaiting action", value: awaiting, sub: "sent or signing", icon: "⏳", color: "bg-white" },
-          { label: "Active leases", value: statMap.ACTIVE ?? 0, sub: "currently renting", icon: "🔑", color: "bg-white" },
-          { label: "Total collected", value: `$${collected.toLocaleString()}`, sub: "all time", icon: "💰", color: "bg-gradient-to-br from-sky-600 to-sky-700", light: true },
+          { label: "Total leases", value: total, sub: "all time", icon: "", color: "bg-white" },
+          { label: "Awaiting action", value: awaiting, sub: "sent or signing", color: "bg-white" },
+          { label: "Active leases", value: statMap.ACTIVE ?? 0, sub: "currently renting", color: "bg-white" },
+          { label: "Total collected", value: `$${collected.toLocaleString()}`, sub: "all time", color: "bg-gradient-to-br from-sky-600 to-sky-700", light: true },
         ].map((stat) => (
           <div
             key={stat.label}
             className={`${stat.color} rounded-2xl p-5 border border-gray-100 ${stat.light ? "border-transparent shadow-lg shadow-sky-200" : "shadow-sm"}`}
           >
-            <div className="text-2xl mb-3">{stat.icon}</div>
             <div className={`text-2xl font-black ${stat.light ? "text-white" : "text-gray-900"}`}>{stat.value}</div>
             <div className={`text-xs mt-1 font-medium ${stat.light ? "text-sky-200" : "text-gray-400"}`}>{stat.label}</div>
             <div className={`text-xs ${stat.light ? "text-sky-300" : "text-gray-300"}`}>{stat.sub}</div>
@@ -220,9 +216,7 @@ async function LandlordDashboard({ userId, firstName }: { userId: string; firstN
         </div>
 
         {leases.length === 0 ? (
-          <div className="py-20 text-center">
-            <div className="text-4xl mb-4">🏠</div>
-            <p className="font-semibold text-gray-700 mb-1">No leases yet</p>
+          <div className="py-20 text-center">            <p className="font-semibold text-gray-700 mb-1">No leases yet</p>
             <p className="text-sm text-gray-400 mb-6">Create your first lease and send it to your tenant.</p>
             <Link href="/leases/new" className="inline-flex items-center gap-2 bg-sky-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-sky-700 transition-colors">
               + Create first lease
@@ -235,7 +229,7 @@ async function LandlordDashboard({ userId, firstName }: { userId: string; firstN
               return (
                 <Link key={lease.id} href={`/leases/${lease.id}`} className="flex items-center justify-between px-6 py-4 hover:bg-sky-50/40 transition-colors group">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center text-lg flex-shrink-0">🏠</div>
+                    <div className="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center text-sm font-bold text-sky-700 flex-shrink-0">L</div>
                     <div className="min-w-0">
                       <p className="font-semibold text-gray-900 text-sm truncate group-hover:text-sky-700 transition-colors">{lease.propertyAddress}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{lease.tenantName}</p>

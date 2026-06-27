@@ -8,7 +8,6 @@ export default function NotFound() {
         <div className="flex justify-center mb-8">
           <div className="relative">
             <LogoMark size={56} />
-            <span className="absolute -top-1 -right-2 text-2xl">🔍</span>
           </div>
         </div>
 

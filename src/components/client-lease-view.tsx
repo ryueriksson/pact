@@ -174,12 +174,11 @@ export function ClientLeaseView({ token, lease }: Props) {
         {cancelled && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-5 py-4 mb-6 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">⚠️</span>
               <p className="text-sm text-yellow-800 font-medium">
                 Payment was cancelled. You can try again whenever you&apos;re ready.
               </p>
             </div>
-            <button onClick={() => setCancelled(false)} className="text-yellow-500 hover:text-yellow-700 text-xs">✕</button>
+            <button onClick={() => setCancelled(false)} className="text-yellow-500 hover:text-yellow-700 text-xs">Close</button>
           </div>
         )}
 
@@ -326,7 +325,6 @@ export function ClientLeaseView({ token, lease }: Props) {
         {step === "deposit" && (
           <div className="text-center">
             <div className="bg-white border border-gray-200 rounded-xl p-8 md:p-10 mb-6">
-              <div className="text-5xl mb-4">✍️</div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Lease signed!</h2>
               <p className="text-gray-500 mb-6">Now pay your security deposit to secure the property.</p>
               <div className="text-3xl font-bold text-gray-900 mb-8">
@@ -337,7 +335,6 @@ export function ClientLeaseView({ token, lease }: Props) {
               {stripeNotConnected ? (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 text-left">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">⚠️</span>
                     <div>
                       <p className="font-semibold text-amber-900 text-sm mb-1">Payment setup incomplete</p>
                       <p className="text-sm text-amber-700">The landlord hasn&apos;t connected their payment account yet. Please contact them directly.</p>
@@ -345,7 +342,7 @@ export function ClientLeaseView({ token, lease }: Props) {
                   </div>
                 </div>
               ) : payError ? (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm text-red-700 text-left">⚠️ {payError}</div>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm text-red-700 text-left">{payError}</div>
               ) : null}
 
               {!stripeNotConnected && (
@@ -370,13 +367,11 @@ export function ClientLeaseView({ token, lease }: Props) {
               {paymentParam === "deposit_success" ? (
                 <>
                   <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">✓</span>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 mb-2">Deposit received!</h2>
                 </>
               ) : (
                 <>
-                  <div className="text-5xl mb-4">🏠</div>
                   <h2 className="text-xl font-bold text-gray-900 mb-2">One last step!</h2>
                 </>
               )}
@@ -396,7 +391,6 @@ export function ClientLeaseView({ token, lease }: Props) {
               {stripeNotConnected ? (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 text-left">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">⚠️</span>
                     <div>
                       <p className="font-semibold text-amber-900 text-sm mb-1">Payment setup incomplete</p>
                       <p className="text-sm text-amber-700">The landlord hasn&apos;t connected their payment account yet. Please contact them directly.</p>
@@ -404,7 +398,7 @@ export function ClientLeaseView({ token, lease }: Props) {
                   </div>
                 </div>
               ) : payError ? (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm text-red-700 text-left">⚠️ {payError}</div>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm text-red-700 text-left">{payError}</div>
               ) : null}
 
               {!stripeNotConnected && (
@@ -427,7 +421,6 @@ export function ClientLeaseView({ token, lease }: Props) {
           <div className="text-center">
             <div className="bg-white border border-gray-200 rounded-xl p-8 md:p-10">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-                <span className="text-3xl">✓</span>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">You&apos;re all set!</h2>
               <p className="text-gray-500 mb-6">
@@ -438,25 +431,25 @@ export function ClientLeaseView({ token, lease }: Props) {
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 text-left space-y-3">
                 {!lease.skipSigning && lease.leaseContract && (
                   <div className="flex items-center gap-3">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-green-500 font-bold">Done</span>
                     <span className="text-sm text-gray-700">Lease signed on {new Date(lease.leaseContract.signedAt).toLocaleDateString()}</span>
                   </div>
                 )}
                 {lease.skipSigning && (
                   <div className="flex items-center gap-3">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-green-500 font-bold">Done</span>
                     <span className="text-sm text-gray-700">Existing signed lease on file</span>
                   </div>
                 )}
                 {depositPaid && (
                   <div className="flex items-center gap-3">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-green-500 font-bold">Done</span>
                     <span className="text-sm text-gray-700">Security deposit paid</span>
                   </div>
                 )}
                 {(rentActive || paymentParam === "rent_success") && (
                   <div className="flex items-center gap-3">
-                    <span className="text-green-500">✓</span>
+                    <span className="text-green-500 font-bold">Done</span>
                     <span className="text-sm text-gray-700">Monthly rent of {fmt(lease.monthlyRent, lease.currency)} set up — auto-charged on the 1st</span>
                   </div>
                 )}

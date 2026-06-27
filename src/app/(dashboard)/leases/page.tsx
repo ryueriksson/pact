@@ -40,7 +40,6 @@ export default async function LeasesPage() {
 
       {leases.length === 0 ? (
         <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-          <div className="text-5xl mb-4">🏠</div>
           <h2 className="text-lg font-bold text-gray-900 mb-2">No leases yet</h2>
           <p className="text-gray-400 text-sm mb-6">
             Create a lease and send it to your tenant — they sign and pay in one link.

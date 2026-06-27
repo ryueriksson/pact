@@ -171,7 +171,6 @@ export function ClientProposalView({ token, proposal }: Props) {
         {cancelled && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-5 py-4 mb-6 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">⚠️</span>
               <p className="text-sm text-yellow-800 font-medium">
                 Payment was cancelled. You can try again whenever you&apos;re ready.
               </p>
@@ -180,7 +179,7 @@ export function ClientProposalView({ token, proposal }: Props) {
               onClick={() => setCancelled(false)}
               className="text-yellow-500 hover:text-yellow-700 text-xs"
             >
-              ✕
+              Close
             </button>
           </div>
         )}
@@ -329,7 +328,6 @@ export function ClientProposalView({ token, proposal }: Props) {
         {step === "pay" && (
           <div className="text-center">
             <div className="bg-white border border-gray-200 rounded-xl p-8 md:p-10 mb-6">
-              <div className="text-5xl mb-4">✍️</div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Contract signed!</h2>
               <p className="text-gray-500 mb-8">
                 One last step — pay your deposit to kick things off.
@@ -345,7 +343,6 @@ export function ClientProposalView({ token, proposal }: Props) {
               {stripeNotConnected ? (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 text-left">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">⚠️</span>
                     <div>
                       <p className="font-semibold text-amber-900 text-sm mb-1">
                         Payment setup incomplete
@@ -358,7 +355,7 @@ export function ClientProposalView({ token, proposal }: Props) {
                 </div>
               ) : payError ? (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm text-red-700 text-left">
-                  ⚠️ {payError}
+                  {payError}
                 </div>
               ) : null}
 
@@ -386,7 +383,6 @@ export function ClientProposalView({ token, proposal }: Props) {
               {paymentResult === "success" || alreadyPaid ? (
                 <>
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-                    <span className="text-3xl">✓</span>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment received!</h2>
                   <p className="text-gray-500 mb-6">
@@ -394,14 +390,13 @@ export function ClientProposalView({ token, proposal }: Props) {
                   </p>
                   <div className="bg-green-50 border border-green-200 rounded-xl px-6 py-4 inline-block">
                     <p className="text-sm text-green-800 font-medium">
-                      🎉 You&apos;re all set — project is officially kicked off!
+                      You&apos;re all set — project is officially kicked off!
                     </p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-5">
-                    <span className="text-3xl">✍️</span>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Signed!</h2>
                   <p className="text-gray-500">

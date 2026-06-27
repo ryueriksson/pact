@@ -37,3 +37,4 @@ node_modules/.prisma/
 # IDE
 .idea
 .vscode
+.env*

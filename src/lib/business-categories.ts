@@ -5,7 +5,6 @@ export type BusinessCategoryOption = {
   label: string;
   description: string;
   examples: string;
-  icon: string;
 };
 
 export const BUSINESS_CATEGORIES: BusinessCategoryOption[] = [
@@ -14,21 +13,18 @@ export const BUSINESS_CATEGORIES: BusinessCategoryOption[] = [
     label: "Freelancer or consultant",
     description: "Send proposals, get contracts signed, and collect deposits.",
     examples: "Photographers, designers, developers, writers, coaches",
-    icon: "📸",
   },
   {
     value: "AGENCY",
     label: "Agency or studio",
     description: "Manage client proposals and payments for your team.",
     examples: "Creative agencies, dev shops, marketing studios",
-    icon: "🏢",
   },
   {
     value: "LANDLORD",
     label: "Landlord or property manager",
     description: "Send leases, collect signatures, deposits, and monthly rent.",
     examples: "Homeowners, landlords, property managers",
-    icon: "🏠",
   },
 ];
 
@@ -46,23 +42,23 @@ export function getPrimaryCreateHref(category: BusinessCategory | null | undefin
 }
 
 export function getNavItems(category: BusinessCategory | null | undefined) {
-  const items = [{ href: "/dashboard", label: "Dashboard", icon: "⊞" }];
+  const items: { href: string; label: string }[] = [{ href: "/dashboard", label: "Dashboard" }];
 
   if (canAccessProposals(category)) {
     items.push(
-      { href: "/proposals", label: "Proposals", icon: "📄" },
-      { href: "/proposals/new", label: "New Proposal", icon: "✦" },
+      { href: "/proposals", label: "Proposals" },
+      { href: "/proposals/new", label: "New Proposal" },
     );
   }
 
   if (canAccessLeases(category)) {
     items.push(
-      { href: "/leases", label: "Leases", icon: "🏠" },
-      { href: "/leases/new", label: "New Lease", icon: "🔑" },
+      { href: "/leases", label: "Leases" },
+      { href: "/leases/new", label: "New Lease" },
     );
   }
 
-  items.push({ href: "/settings", label: "Settings", icon: "⚙️" });
+  items.push({ href: "/settings", label: "Settings" });
   return items;
 }
 

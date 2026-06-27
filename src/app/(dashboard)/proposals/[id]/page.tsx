@@ -109,7 +109,7 @@ export default async function ProposalDetailPage({
                     step.done ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-400"
                   }`}
                 >
-                  {step.done ? "✓" : i + 1}
+                  {step.done ? "Done" : i + 1}
                 </div>
                 <span className="text-xs text-gray-500 mt-1 whitespace-nowrap">{step.label}</span>
               </div>
@@ -166,7 +166,7 @@ export default async function ProposalDetailPage({
             <div>
               {proposal.payment?.status === "PAID" ? (
                 <span className="bg-green-100 text-green-700 text-xs font-medium px-3 py-1 rounded-full">
-                  ✓ Paid {new Date(proposal.payment.paidAt!).toLocaleDateString()}
+                  Paid {new Date(proposal.payment.paidAt!).toLocaleDateString()}
                 </span>
               ) : (
                 <span className="bg-yellow-100 text-yellow-700 text-xs font-medium px-3 py-1 rounded-full">

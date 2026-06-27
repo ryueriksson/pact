@@ -32,13 +32,10 @@ export function BusinessCategoryPicker({ value, onChange, error }: Props) {
                   : "border-gray-200 bg-white hover:border-sky-200 hover:bg-sky-50/40"
               }`}
             >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl leading-none mt-0.5">{category.icon}</span>
-                <div className="min-w-0">
+              <div className="min-w-0">
                   <p className="font-bold text-gray-900 text-sm">{category.label}</p>
                   <p className="text-sm text-gray-500 mt-1">{category.description}</p>
                   <p className="text-xs text-gray-400 mt-2">{category.examples}</p>
-                </div>
               </div>
             </button>
           );

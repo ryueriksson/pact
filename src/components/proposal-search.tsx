@@ -47,9 +47,7 @@ export function ProposalSearch({ currentQ, currentStatus }: Props) {
     <div className="flex flex-col sm:flex-row gap-3">
       {/* Search box */}
       <form onSubmit={handleSearch} className="flex-1 flex gap-2">
-        <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
-          <input
+        <div className="relative flex-1">          <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search by title, client name or email…"

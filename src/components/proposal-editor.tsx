@@ -209,7 +209,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
             disabled={loading}
             className="border-2 border-gray-200 hover:border-gray-300 px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-gray-900 transition-all disabled:opacity-50"
           >
-            {saved ? "✓ Saved" : loading ? "Saving..." : "Save draft"}
+            {saved ? "Saved" : loading ? "Saving..." : "Save draft"}
           </button>
           <button
             onClick={() => handleSave(true)}
@@ -223,7 +223,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
@@ -283,7 +283,7 @@ export function ProposalEditor({ proposalId, initial }: Props) {
                 onClick={() => removeSection(section.id)}
                 className="absolute top-3 right-3 w-6 h-6 rounded-lg bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
               >
-                ✕
+                Close
               </button>
 
               <div className="pl-6 pr-8">

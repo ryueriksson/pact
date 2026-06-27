@@ -152,42 +152,36 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                icon: "📝",
                 color: "bg-sky-50 border-sky-100",
                 iconBg: "bg-sky-100",
                 title: "Beautiful proposals",
                 desc: "Build professional proposals in minutes with our section builder — text, pricing tables, and more. Looks like you hired a designer.",
               },
               {
-                icon: "✍️",
                 color: "bg-sky-50 border-sky-100",
                 iconBg: "bg-sky-100",
                 title: "Built-in e-signature",
                 desc: "Clients sign directly in their browser. Timestamp, IP address, and signature captured automatically. No DocuSign account needed.",
               },
               {
-                icon: "💳",
                 color: "bg-sky-50 border-sky-100",
                 iconBg: "bg-sky-100",
                 title: "Stripe payments",
                 desc: "Collect your deposit the moment they sign. Funds arrive in 2 business days. No more chasing invoices.",
               },
               {
-                icon: "🔗",
                 color: "bg-fuchsia-50 border-fuchsia-100",
                 iconBg: "bg-fuchsia-100",
                 title: "One shareable link",
                 desc: "One link does it all — review, sign, pay. No logins, no apps, no confusion for your client.",
               },
               {
-                icon: "📧",
                 color: "bg-blue-50 border-blue-100",
                 iconBg: "bg-blue-100",
                 title: "Automatic notifications",
                 desc: "Get notified the moment your client views, signs, or pays. Know exactly where every deal stands.",
               },
               {
-                icon: "📊",
                 color: "bg-emerald-50 border-emerald-100",
                 iconBg: "bg-emerald-100",
                 title: "Deal dashboard",
@@ -195,9 +189,6 @@ export default function LandingPage() {
               },
             ].map((f) => (
               <div key={f.title} className={`rounded-2xl border p-6 ${f.color}`}>
-                <div className={`w-10 h-10 ${f.iconBg} rounded-xl flex items-center justify-center text-lg mb-4`}>
-                  {f.icon}
-                </div>
                 <h3 className="font-bold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
               </div>
@@ -278,7 +269,7 @@ export default function LandingPage() {
                   "Email notifications",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-3 text-sm text-gray-600">
-                    <span className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-xs flex-shrink-0">✓</span>
+                    <span className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-xs flex-shrink-0">+</span>
                     {f}
                   </li>
                 ))}
@@ -313,7 +304,7 @@ export default function LandingPage() {
                     "Team members (coming soon)",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-3 text-sm text-sky-100">
-                      <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0">✓</span>
+                      <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0">+</span>
                       {f}
                     </li>
                   ))}

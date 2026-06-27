@@ -171,7 +171,7 @@ export default function CompanyPage() {
             href="mailto:use.pact.features@gmail.com"
             className="inline-flex items-center gap-3 bg-white text-[#0D3547] hover:bg-gray-50 px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl"
           >
-            <span>✉️</span>
+            <span></span>
             use.pact.features@gmail.com
           </a>
         </div>

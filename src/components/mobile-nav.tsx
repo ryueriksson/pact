@@ -7,7 +7,6 @@ import { LogoMark } from "@/components/logo";
 type NavItem = {
   href: string;
   label: string;
-  icon: string;
 };
 
 type Props = {
@@ -61,7 +60,7 @@ export function MobileNav({ initials, name, email, nav, createHref, createLabel 
             onClick={() => setOpen(false)}
             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500"
           >
-            ✕
+            Close
           </button>
         </div>
 
@@ -83,7 +82,6 @@ export function MobileNav({ initials, name, email, nav, createHref, createLabel 
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-500 hover:bg-sky-50 hover:text-sky-700 font-medium transition-all"
             >
-              <span className="w-5 text-center text-base">{item.icon}</span>
               {item.label}
             </Link>
           ))}

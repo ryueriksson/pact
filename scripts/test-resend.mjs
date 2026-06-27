@@ -53,7 +53,7 @@ const { data, error } = await resend.emails.send({
   subject: "Pact — Resend is connected",
   html: `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
-      <h1 style="font-size:24px;margin-bottom:8px;">Resend is working ✓</h1>
+      <h1 style="font-size:24px;margin-bottom:8px;">Resend is working</h1>
       <p style="color:#555;font-size:16px;line-height:1.6;">
         Pact can now send transactional emails (proposals, leases, password resets).
       </p>

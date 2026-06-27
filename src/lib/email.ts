@@ -109,7 +109,7 @@ export async function sendSignedNotification({
 
   return sendEmail({
     to,
-    subject: `✅ ${clientName} signed "${proposalTitle}"`,
+    subject: `${clientName} signed "${proposalTitle}"`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
         <h1 style="font-size:24px;margin-bottom:8px;">Great news, ${ownerName}!</h1>
@@ -189,7 +189,7 @@ export async function sendLeaseSignedNotification({
 
   return sendEmail({
     to,
-    subject: `✅ ${tenantName} signed the lease — ${propertyAddress}`,
+    subject: `${tenantName} signed the lease — ${propertyAddress}`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
         <h1 style="font-size:24px;margin-bottom:8px;">Lease signed!</h1>
@@ -227,7 +227,7 @@ export async function sendRentPaidReceipt({
     subject: `Rent receipt — ${propertyAddress} (${month})`,
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
-        <h1 style="font-size:24px;margin-bottom:8px;">Rent received ✓</h1>
+        <h1 style="font-size:24px;margin-bottom:8px;">Rent received</h1>
         <p style="color:#555;font-size:16px;line-height:1.6;">
           Hi ${tenantName}, your rent payment of <strong>${amountFormatted}</strong>
           for <strong>${propertyAddress}</strong> (${month}) has been received.

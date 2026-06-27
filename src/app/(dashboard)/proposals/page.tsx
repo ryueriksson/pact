@@ -70,7 +70,6 @@ export default async function ProposalsPage({
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden mt-4">
         {proposals.length === 0 ? (
           <div className="py-20 text-center text-gray-400">
-            <div className="text-4xl mb-4">📄</div>
             {q || statusFilter !== "all" ? (
               <>
                 <p className="mb-2 font-medium text-gray-600">No proposals match your filters</p>
