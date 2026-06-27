@@ -12,9 +12,6 @@ const registerSuccessMessage =
 
 export async function POST(req: NextRequest) {
   try {
-    const limited = await enforceRateLimit(req, "register", 5, 60 * 60 * 1000);
-    if (limited) return limited;
-
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);
 
@@ -25,10 +22,14 @@ export async function POST(req: NextRequest) {
     const { name, email, password, businessCategory } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
+    // Rate limit after validation so typos don't consume the quota
+    const ipLimited = await enforceRateLimit(req, "register", 20, 60 * 60 * 1000);
+    if (ipLimited) return ipLimited;
+
     const emailLimited = await enforceRateLimitByKey(
       "register-email",
       normalizedEmail,
-      3,
+      10,
       60 * 60 * 1000
     );
     if (emailLimited) return emailLimited;

@@ -6,6 +6,8 @@ export function getClientIp(req: NextRequest): string {
   return (
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("x-real-ip") ??
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-vercel-forwarded-for") ??
     "unknown"
   );
 }
@@ -47,9 +49,9 @@ export async function checkRateLimit(
     });
     return { success: true };
   } catch (err) {
-    console.error("[rate-limit]", err);
-    // Fail closed — prefer blocking over allowing abuse when the limiter is unavailable
-    return { success: false, retryAfter: 60 };
+    // Fail open — never block legitimate users when the limiter is unavailable
+    console.error("[rate-limit]", key, err);
+    return { success: true };
   }
 }
 
@@ -66,7 +68,10 @@ export async function enforceRateLimit(
   const result = await checkRateLimit(key, limit, windowMs);
 
   if (!result.success) {
-    return apiError("Too many requests. Please try again later.", 429);
+    return apiError(
+      `Too many attempts. Please wait ${result.retryAfter} seconds and try again.`,
+      429
+    );
   }
 
   return null;
@@ -83,7 +88,10 @@ export async function enforceRateLimitByKey(
   const result = await checkRateLimit(key, limit, windowMs);
 
   if (!result.success) {
-    return apiError("Too many requests. Please try again later.", 429);
+    return apiError(
+      `Too many attempts. Please wait ${result.retryAfter} seconds and try again.`,
+      429
+    );
   }
 
   return null;
