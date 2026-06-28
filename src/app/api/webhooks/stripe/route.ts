@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { stripe, PRO_SUBSCRIPTION_PRICE_CENTS } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { sendPaymentConfirmation, sendRentPaidReceipt } from "@/lib/email";
 import { formatCurrency } from "@/lib/tokens";
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         if (eventType === "pro_subscription") {
           const userId = session.metadata?.userId;
           if (!userId) break;
-          if (session.amount_total !== 3000) break;
+          if (session.amount_total !== PRO_SUBSCRIPTION_PRICE_CENTS) break;
 
           await prisma.user.update({
             where: { id: userId },

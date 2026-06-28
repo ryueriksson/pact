@@ -36,6 +36,9 @@ export const stripe: Stripe = new Proxy({} as Stripe, {
 // Platform fee: 1% of transaction
 const PLATFORM_FEE_PERCENT = 0.01;
 
+/** Pact Pro monthly price in cents ($29.00) */
+export const PRO_SUBSCRIPTION_PRICE_CENTS = 2900;
+
 /** Create a Stripe Checkout session for a lease security deposit (one-time). */
 export async function createLeaseDepositSession({
   leaseId,
@@ -142,7 +145,7 @@ export async function createLeaseRentSubscription({
   });
 }
 
-/** Create a Stripe Checkout session for a Pact Pro subscription ($30/mo).
+/** Create a Stripe Checkout session for a Pact Pro subscription ($29/mo).
  *  Payment goes directly to Pact's platform account (no Connect).
  */
 export async function createProSubscriptionSession({
@@ -168,7 +171,7 @@ export async function createProSubscriptionSession({
             name: "Pact Pro",
             description: "Unlimited proposals & leases, no transaction fees",
           },
-          unit_amount: 3000, // $30.00
+          unit_amount: PRO_SUBSCRIPTION_PRICE_CENTS,
           recurring: { interval: "month" },
         },
         quantity: 1,

@@ -46,7 +46,7 @@ export default function TermsPage() {
               <li>Payments are processed by Stripe. You must connect a valid Stripe account to receive payouts.</li>
               <li>Free plan: Pact charges a 1% platform fee on transactions. Pro plan waives the platform fee.</li>
               <li>Stripe processing fees apply separately (cards, ACH, etc.).</li>
-              <li>Pro subscription is billed monthly at $30/month unless cancelled.</li>
+              <li>Pro subscription is billed monthly at $29/month unless cancelled.</li>
             </ul>
           </section>
 

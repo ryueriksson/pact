@@ -54,7 +54,7 @@ export default function UpgradePage() {
 
           <div className="relative">
             <div className="flex items-end gap-1 mb-6">
-              <span className="text-5xl font-black text-white">$30</span>
+              <span className="text-5xl font-black text-white">$29</span>
               <span className="text-sky-200 mb-1.5">/month</span>
             </div>
 
