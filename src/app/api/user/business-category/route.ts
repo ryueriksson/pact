@@ -2,9 +2,8 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { businessCategorySchema } from "@/lib/validators";
 import { apiError, apiOk } from "@/lib/utils";
-
-const businessCategorySchema = z.enum(["FREELANCER", "LANDLORD", "AGENCY"]);
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,15 +15,6 @@ export async function POST(req: NextRequest) {
       return apiError("Please choose a business category", 422);
     }
 
-    const existing = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { businessCategory: true },
-    });
-
-    if (existing?.businessCategory) {
-      return apiError("Business category is already set", 409);
-    }
-
     const updated = await prisma.user.update({
       where: { id: user.id },
       data: { businessCategory: parsed.data },
@@ -33,6 +23,7 @@ export async function POST(req: NextRequest) {
 
     return apiOk({ user: updated });
   } catch (err) {
+    if ((err as Error).message === "Unauthorized") return apiError("Unauthorized", 401);
     console.error("[business-category]", err);
     return apiError("Something went wrong", 500);
   }

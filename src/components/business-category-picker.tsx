@@ -7,17 +7,21 @@ type Props = {
   value: BusinessCategory | "";
   onChange: (value: BusinessCategory) => void;
   error?: string;
+  label?: string;
+  hint?: string;
 };
 
-export function BusinessCategoryPicker({ value, onChange, error }: Props) {
+export function BusinessCategoryPicker({
+  value,
+  onChange,
+  error,
+  label = "What type of business are you?",
+  hint = "We'll tailor your dashboard so you only see tools that fit your work.",
+}: Props) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        What type of business are you?
-      </label>
-      <p className="text-xs text-gray-400 mb-3">
-        We&apos;ll tailor your dashboard so you only see tools that fit your work.
-      </p>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+      <p className="text-xs text-gray-400 mb-3">{hint}</p>
       <div className="space-y-3">
         {BUSINESS_CATEGORIES.map((category) => {
           const selected = value === category.value;

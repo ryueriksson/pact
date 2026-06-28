@@ -2,6 +2,8 @@ import { z } from "zod";
 
 const businessCategorySchema = z.enum(["FREELANCER", "LANDLORD", "AGENCY"]);
 
+export { businessCategorySchema };
+
 /** Strong password: 12+ chars with at least one letter and one number. */
 export const passwordSchema = z
   .string()
