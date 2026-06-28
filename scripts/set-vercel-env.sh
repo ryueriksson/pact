@@ -14,14 +14,10 @@ set -a
 source .env
 set +a
 
-DB_PASS="${DB_PASS:-$(echo "$DATABASE_URL" | sed -n 's/.*:\/\/[^:]*:\([^@]*\)@.*/\1/p')}"
-PROJECT_REF="fcwglkzfbnardhfymkah"
-REGION="eu-north-1"
+POOL_URL="$(node scripts/build-vercel-db-urls.mjs | sed -n '1p')"
+DIRECT_POOL="$(node scripts/build-vercel-db-urls.mjs | sed -n '2p')"
 
-POOL_URL="postgresql://pact_app.${PROJECT_REF}:${DB_PASS}@aws-0-${REGION}.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
-DIRECT_POOL="postgresql://pact_app.${PROJECT_REF}:${DB_PASS}@aws-0-${REGION}.pooler.supabase.com:5432/postgres"
-
-PROD_URL="${1:-https://pact.vercel.app}"
+PROD_URL="${1:-https://usepact.vercel.app}"
 AUTH_SECRET="${NEXTAUTH_SECRET:-$(openssl rand -base64 32)}"
 
 add_env DATABASE_URL "$POOL_URL"
@@ -37,5 +33,7 @@ add_env EMAIL_REPLY_TO "${EMAIL_REPLY_TO:-use.pact.features@gmail.com}"
 [[ -n "${STRIPE_SECRET_KEY:-}" ]] && add_env STRIPE_SECRET_KEY "$STRIPE_SECRET_KEY"
 [[ -n "${STRIPE_WEBHOOK_SECRET:-}" ]] && add_env STRIPE_WEBHOOK_SECRET "$STRIPE_WEBHOOK_SECRET"
 [[ -n "${BLOB_READ_WRITE_TOKEN:-}" ]] && add_env BLOB_READ_WRITE_TOKEN "$BLOB_READ_WRITE_TOKEN"
+[[ -n "${GOOGLE_CLIENT_ID:-}" ]] && add_env GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"
+[[ -n "${GOOGLE_CLIENT_SECRET:-}" ]] && add_env GOOGLE_CLIENT_SECRET "$GOOGLE_CLIENT_SECRET"
 
 echo "Done. Production URL: $PROD_URL"
