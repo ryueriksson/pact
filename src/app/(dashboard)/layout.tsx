@@ -16,6 +16,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user.businessCategory && !isAdmin) redirect("/onboarding");
 
   const nav = getNavItems(user.businessCategory);
+  if (isAdmin) {
+    nav.splice(nav.length - 1, 0, { href: "/admin", label: "Admin" });
+  }
   const createHref = getPrimaryCreateHref(user.businessCategory);
   const createLabel = canAccessLeases(user.businessCategory) ? "New Lease" : "New Proposal";
 
