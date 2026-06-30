@@ -65,16 +65,6 @@ export default function LandingPage() {
             </Link>
             <span className="text-sm text-gray-400">No credit card required · Free forever plan</span>
           </div>
-
-          {/* Social proof */}
-          <div className="mt-16 flex items-center justify-center gap-2 text-sm text-gray-400">
-            <div className="flex -space-x-2">
-              {["bg-sky-400","bg-sky-500","bg-blue-400","bg-purple-400","bg-fuchsia-400"].map((c,i) => (
-                <div key={i} className={`w-7 h-7 rounded-full border-2 border-white ${c}`} />
-              ))}
-            </div>
-            <span className="ml-2">Trusted by <strong className="text-gray-600">2,400+</strong> professionals & landlords</span>
-          </div>
         </div>
 
         {/* Hero mockup */}
@@ -127,7 +117,7 @@ export default function LandingPage() {
       <section className="py-12 border-y border-gray-100 bg-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-8">
-            Used by independent professionals worldwide
+            Built for independent professionals
           </p>
           <div className="flex flex-wrap justify-center gap-8 items-center opacity-40 grayscale">
             {["Designer", "Developer", "Landlord", "Consultant", "Agency", "Property manager"].map((role) => (

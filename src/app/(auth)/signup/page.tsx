@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
+import { Logo, LogoWhite } from "@/components/logo";
 import { BusinessCategoryPicker } from "@/components/business-category-picker";
 import type { BusinessCategory } from "@prisma/client";
 
@@ -63,36 +63,15 @@ export default function SignupPage() {
       <div className="hidden lg:flex flex-col w-[480px] bg-gradient-to-br from-sky-600 to-indigo-700 p-12 relative overflow-hidden flex-shrink-0">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptMC0zMHY2aDZ2LTZoLTZ6bTAgMTV2Nmg2di02aC02em0tMTUgMTV2Nmg2di02aC02em0wLTE1djZoNnYtNmgtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-100" />
         <div className="relative flex flex-col h-full">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                <path d="M12 30V11H20.5C24.09 11 27 13.91 27 17.5C27 21.09 24.09 24 20.5 24H12" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M14 30 Q20 26 28 29" stroke="#BAE6FD" strokeWidth="2.5" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <span className="font-bold text-xl text-white">Pact</span>
-          </div>
+          <LogoWhite />
 
           <div className="mt-auto">
-            <div className="space-y-6">
-              {[
-                { quote: "I closed my first $3,000 client the same day I signed up. One link, they signed, they paid. Done.", author: "Sarah M.", role: "Brand Designer" },
-                { quote: "Replaced Dubsado and DocuSign. Simpler and half the price.", author: "James K.", role: "Web Developer" },
-              ].map((t) => (
-                <div key={t.author} className="bg-white/10 rounded-2xl p-5 backdrop-blur-sm">
-                  <p className="text-white/90 text-sm leading-relaxed mb-3">&quot;{t.quote}&quot;</p>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-sky-300 flex items-center justify-center text-xs font-bold text-sky-800">
-                      {t.author[0]}
-                    </div>
-                    <div>
-                      <p className="text-white text-xs font-bold">{t.author}</p>
-                      <p className="text-sky-300 text-xs">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <h2 className="text-3xl font-black text-white mb-4 leading-tight">
+              Close deals faster.<br />Get paid sooner.
+            </h2>
+            <p className="text-sky-200 text-base leading-relaxed">
+              Proposal, contract, and payment — all in one link your clients actually use.
+            </p>
           </div>
         </div>
       </div>

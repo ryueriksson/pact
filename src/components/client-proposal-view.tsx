@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
+import { LogoMark } from "@/components/logo";
 
 type Section = {
   id: string;
@@ -143,8 +144,10 @@ export function ClientProposalView({ token, proposal }: Props) {
             <h1 className="font-bold text-base md:text-lg text-gray-900">{proposal.title}</h1>
             <p className="text-sm text-gray-500">Prepared for {proposal.clientName}</p>
           </div>
-          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded hidden sm:inline">
-            Powered by Pact
+          <span className="text-xs text-gray-500 hidden sm:inline-flex items-center gap-1.5">
+            <span className="text-gray-400">Powered by</span>
+            <LogoMark size={18} />
+            <span className="font-semibold text-gray-700">Pact</span>
           </span>
         </div>
       </div>

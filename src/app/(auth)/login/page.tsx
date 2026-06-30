@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
+import { Logo, LogoWhite } from "@/components/logo";
 
 function LoginForm() {
   const router = useRouter();
@@ -118,14 +118,8 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col w-[480px] bg-gradient-to-br from-sky-600 to-indigo-700 p-12 relative overflow-hidden flex-shrink-0">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptMC0zMHY2aDZ2LTZoLTZ6bTAgMTV2Nmg2di02aC02em0tMTUgMTV2Nmg2di02aC02em0wLTE1djZoNnYtNmgtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-100" />
         <div className="relative">
-          <div className="flex items-center gap-2.5 mb-16">
-            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                <path d="M12 30V11H20.5C24.09 11 27 13.91 27 17.5C27 21.09 24.09 24 20.5 24H12" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M14 30 Q20 26 28 29" stroke="#BAE6FD" strokeWidth="2.5" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <span className="font-bold text-xl text-white">Pact</span>
+          <div className="mb-16">
+            <LogoWhite />
           </div>
 
           <div className="mt-auto">
@@ -135,19 +129,6 @@ export default function LoginPage() {
             <p className="text-sky-200 text-base leading-relaxed">
               Proposal, contract, and payment — all in one link your clients actually use.
             </p>
-          </div>
-
-          <div className="mt-16 space-y-4">
-            {[
-              { stat: "2,400+", label: "Freelancers using Pact" },
-              { stat: "$4.2M+", label: "Collected through Pact" },
-              { stat: "< 5 min", label: "Average time to first deal" },
-            ].map((s) => (
-              <div key={s.stat} className="flex items-center gap-4">
-                <div className="text-xl font-black text-white">{s.stat}</div>
-                <div className="text-sm text-sky-300">{s.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
