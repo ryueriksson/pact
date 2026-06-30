@@ -1,4 +1,5 @@
 import { requireUser, signOut } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/admin-access";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LogoMark } from "@/components/logo";
@@ -11,7 +12,8 @@ import {
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  if (!user.businessCategory) redirect("/onboarding");
+  const isAdmin = isAdminEmail(user.email);
+  if (!user.businessCategory && !isAdmin) redirect("/onboarding");
 
   const nav = getNavItems(user.businessCategory);
   const createHref = getPrimaryCreateHref(user.businessCategory);

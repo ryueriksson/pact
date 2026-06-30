@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import { authConfig } from "@/lib/auth.config";
+import { isAdminEmail } from "@/lib/admin-access";
 import {
   canAccessLeases,
   canAccessProposals,
@@ -17,6 +18,7 @@ export default auth((req) => {
     pathname.startsWith("/proposals") ||
     pathname.startsWith("/leases") ||
     pathname.startsWith("/settings") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/onboarding");
 
   if (isProtected && !req.auth) {
@@ -52,8 +54,20 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (req.auth && !category && pathname !== "/onboarding" && isProtected) {
+  if (
+    req.auth &&
+    !category &&
+    pathname !== "/onboarding" &&
+    isProtected &&
+    !pathname.startsWith("/admin")
+  ) {
     return NextResponse.redirect(new URL("/onboarding", req.url));
+  }
+
+  if (pathname.startsWith("/admin")) {
+    if (!req.auth?.user?.email || !isAdminEmail(req.auth.user.email)) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
   }
 
   if (req.auth && category && pathname === "/onboarding") {
